@@ -15,9 +15,8 @@ DASTContextRootSmalltalk >> assignVariable: name value: value [
 
 { #category : #accessing }
 DASTContextRootSmalltalk >> findVariable: aByteSymbol [
-	^ (self evaluator environment bindingOf: aByteSymbol) 
-		ifNil: [ self error: 'Variable ', aByteSymbol , ' not defined!' ] 
-		ifNotNil: [  :b | b value ]
+	
+	^ self evaluator findGlobalVariable: aByteSymbol
 ]
 
 { #category : #'as yet unclassified' }

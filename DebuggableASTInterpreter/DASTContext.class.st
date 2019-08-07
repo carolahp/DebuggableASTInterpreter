@@ -35,7 +35,7 @@ DASTContext class >> newWithSender: aDASTContext receiver: aReceiver messageNode
 { #category : #instantiation }
 DASTContext class >> newWithSender: aDASTContext receiver: aReceiver messageNode: aRBMessageNode evaluator: aDASTEvaluator [ 
 	| context |
-	context := ((aReceiver isEPDASTBlockMirror ) 
+	context := ((aDASTEvaluator isEPDASTBlockMirror: aReceiver ) 
 					and: [ " Check if the message is one of the variants of value. This is very ugly and must be changed when implementing environments "
 						self valueToBlockMessages keys includes: aRBMessageNode selector ])
 		ifTrue: [ DASTBlockContext new ]
@@ -63,7 +63,6 @@ DASTContext >> allTempsWithContext [
 
 { #category : #'API-lookup' }
 DASTContext >> assignVariable: name value: value [
-	| rgClass |
 	"Temporary variables assignment"
 	(self lookupContextDefiningLocalVariable: name)
 		ifNotNil: [ :definingContext | definingContext at: name put: value. ^ self ].
@@ -71,22 +70,15 @@ DASTContext >> assignVariable: name value: value [
 	"receiverClass := receiver basicClass asRemoteClassOnEnvironment: (EPRemoteEnvironment on: evaluator objectSpace backend systemDictionary)."
 	"Instance variables assignment"
 	
-	rgClass := self receiver basicClass asRGClass.
-	(rgClass allInstVarNames includes: name)
-		ifTrue: [ |ivIndex| 
-			ivIndex := rgClass instVarIndexFor: name ifAbsent: [ self halt ].
-			self receiver instanceVariableAtIndex: ivIndex put: value. 
-			^ self].
-
-	(rgClass classVarNames contains: [:c | c = name])
-		ifTrue: [ 
-			| rDictionary |
-			rDictionary := EPRemoteDictionary on: self receiver basicClass classPool. 
-			rDictionary at: name put: value . ^ self].
+	(self evaluator assignInstanceVariable: name inObject: self receiver value: value)
+	ifNotNil: [ ^ self ].
+	
+	(self evaluator assignClassVariable: name inObject: self receiver value: value)
+	ifNotNil: [ ^self ].
 	
 	" Global variables "
 	(self rootContext findVariable: name)
-		ifNotNil: [ self rootContext assignVariable: name value: value. ^ self ].
+	ifNotNil: [ self rootContext assignVariable: name value: value. ^ self ].
 		
 	Error signal: 'Assignment operation failed for variable "' , name , '" with value "', value asString, '"'.
 	
@@ -110,11 +102,6 @@ DASTContext >> canExecute [
 { #category : #'closure support' }
 DASTContext >> contextTag [
 	^ self
-]
-
-{ #category : #accessing }
-DASTContext >> currentNode [
-	^ currentNode
 ]
 
 { #category : #accessing }
@@ -181,13 +168,7 @@ DASTContext >> executedNodes [
 
 { #category : #'API-lookup' }
 DASTContext >> findClassVariable: aName [
-	| mClass hlClass |
-	"self haltIf: [ aName = 'value' ]."
-	mClass := self receiver isClassMirror
-		ifTrue: [ self receiver asClassMirror ]
-		ifFalse: [ self receiver basicClass ].
-	hlClass := mClass asRemoteClassOnEnvironment: (EPRemoteEnvironment on: self evaluator environment bootstrapEnvironment "evaluator objectSpace backend systemDictionary").
-	^ hlClass bindingOf: aName.
+	^ self evaluator findClassVariable: aName inObject: self receiver
 	
 ]
 
@@ -206,19 +187,7 @@ DASTContext >> findContextSuchThat: testBlock [
 
 { #category : #'API-lookup' }
 DASTContext >> findInstanceVariable: aName [
-	| rgClass |
-	self flag: 'incomplete return value'.
-	
-	rgClass := self receiver basicClass asRGClass.
-	rgClass ifNil: [ ^ nil ].
-	(rgClass allInstVarNames includes: aName)
-		ifTrue: [ |ivIndex| 
-			ivIndex := rgClass instVarIndexFor: aName ifAbsent: [ self halt ].
-			^ self receiver instanceVariableAtIndex: ivIndex ].
-	^ nil
-"	self receiver isClassMirror ifTrue: [ ^ nil ].
-	[^ aName -> (self receiver instVarNamed: aName) ]
-		on: InstanceVariableNotFound do: [ ^ nil ] "
+	^ self evaluator findInstanceVariable: aName inObject: self receiver
 ]
 
 { #category : #'API-lookup' }
@@ -320,9 +289,9 @@ DASTContext >> gtInspectorSendersIn: composite [
 DASTContext >> gtInspectorSourceIn: composite [
 	<gtInspectorPresentationOrder: 0> 
 	
-	(self method gtInspectorIn: composite highlightInterval: (Interval from: self currentNode debugHighlightStart to: self currentNode debugHighlightStop))
+	(self method gtInspectorIn: composite highlightInterval: (Interval from: self currentNode debugHighlightStart to: self currentNode debugHighlightStop))"
 		doItReceiver: [ self receiver ];
-		doItContext: [ self ]
+		doItContext: [ self ]"
 ]
 
 { #category : #'gt-extension' }
@@ -442,12 +411,12 @@ DASTContext >> lookupContextDefiningLocalVariable: aByteSymbol [
 { #category : #'API-lookup' }
 DASTContext >> lookupSelector: aByteString startInClass: aClass [ 
 	| lclass |
+	"(aByteString = #signal) ifTrue: [ self halt. ]."
 	lclass := 
 		(aClass == UnhandledError) 
 			ifTrue: [ DASTErrorNonInteractive ]
 			ifFalse: [ aClass ].
-	
-	^( lclass lookupSelector: aByteString installingMissingClassesWithClassLoader: self evaluator codeProvider classLoader )
+	^( lclass lookupSelector: aByteString )
 		ifNil: [ 
 					self error: 'The class ',lclass asString,' does not understand the message: ', aByteString asString ].
 	
@@ -457,11 +426,6 @@ DASTContext >> lookupSelector: aByteString startInClass: aClass [
 { #category : #accessing }
 DASTContext >> messageNode: aRBMessageNode [ 
 	messageNode := aRBMessageNode
-]
-
-{ #category : #accessing }
-DASTContext >> method [
-	^ self methodOrBlock 
 ]
 
 { #category : #accessing }
@@ -475,11 +439,6 @@ DASTContext >> methodOrBlock: aDASTClosure [
 	closure := aDASTClosure
 ]
 
-{ #category : #initialization }
-DASTContext >> namedTempAt: anIndex [
-	^ self variablesDict at: (self tempNames at: anIndex) 
-]
-
 { #category : #'private-exceptions' }
 DASTContext >> nextHandlerContext [
 
@@ -488,7 +447,7 @@ DASTContext >> nextHandlerContext [
 
 { #category : #'accessing-environment' }
 DASTContext >> nilObject [
-	^ self evaluator objectSpace backend nilObject
+	^ self evaluator nilObject
 ]
 
 { #category : #accessing }
@@ -638,11 +597,6 @@ DASTContext >> stack: anObject [
 { #category : #'accessing - private' }
 DASTContext >> tempAt: anIndex [
 	^ self variablesDict at: (self variablesDict keys at: anIndex)
-]
-
-{ #category : #'accessing - private' }
-DASTContext >> tempNames [
-	^ self variablesDict keys
 ]
 
 { #category : #'private-exceptions' }

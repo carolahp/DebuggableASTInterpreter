@@ -65,7 +65,7 @@ DASTInterpreter >> evaluateAST: aRBNode withTemps: aCollection [
 
 { #category : #accessing }
 DASTInterpreter >> evaluator [
-	^ evaluator
+	^ evaluator ifNil: [ evaluator := DASTSystemEnvironment new ]
 ]
 
 { #category : #'gt-extension' }
@@ -117,7 +117,7 @@ DASTInterpreter >> initializeWithProgram: aRBNode withTemps: aCollection [
 	self flag: 'update next call'.
 	" Set the first method (noMethod) context evaluation. The receiver is nil "
 	currentContext := DASTMethodContext new
-		receiver: self evaluator objectSpace backend nilObject;
+		receiver: self evaluator nilObject;
 		parent: rootContext;
 		methodOrBlock: (DASTMethod new initializeWith: nodes last methodNode);
 		nodes: nodes;
@@ -132,11 +132,6 @@ DASTInterpreter >> initializeWithProgram: aRBNode withTemps: aCollection [
 DASTInterpreter >> isTerminated [
 	self flag: 'ToDo: is this method necessary?'.
 	^ self currentContext nodes isEmpty and: [self currentContext parent isRoot].
-]
-
-{ #category : #testing }
-DASTInterpreter >> primitiveResultIsError: anObject [
-	^ (anObject isKindOf: Array ) and: [(anObject at: 1 ifAbsent: nil) = Context primitiveFailToken first ]
 ]
 
 { #category : #accessing }
@@ -175,7 +170,7 @@ DASTInterpreter >> solvePrimitive: aMethod receiver: anObject arguments: anArray
 	].
 	 	
 	"apply primitive to object"
-	primitiveResult := anObject executePrimitiveMethod: aMethod withArguments: anArray asArray.
+	primitiveResult := self evaluator executePrimitiveMethod: aMethod withReceiver: anObject withArguments: anArray asArray.
 	^ primitiveResult
 	
 ]
@@ -249,7 +244,7 @@ DASTInterpreter >> visitArrayNode: aRBArrayNode [
 	| literals size arrayMirror |
 	size := aRBArrayNode statements size.
 	literals := self stackPop: size.
-	arrayMirror := self evaluator objectSpace newArrayWithAll: literals reverse.
+	arrayMirror := self evaluator newArrayWithAll: literals reverse.
 	self stackPush: arrayMirror
 ]
 
@@ -266,7 +261,7 @@ DASTInterpreter >> visitBlockNode: aRBBlockNode [
 	| block blockMirror |
 	block := DASTBlock new initializeWith: aRBBlockNode; outerContext: currentContext.
 	
-	blockMirror := (self evaluator objectSpace backend mirrorOnExternalHandle: block) asDASTBlockMirror.
+	blockMirror := self evaluator blockFrom: block.
 	
 	self stackPush: blockMirror 
 ]
@@ -294,13 +289,13 @@ DASTInterpreter >> visitLiteralArrayNode: aRBLiteralArrayNode [
 	| literals size |
 	size := aRBLiteralArrayNode contents size.
 	literals := self stackPop: size.
-	self stackPush: (self evaluator objectSpace newArrayWithAll: literals)
+	self stackPush: (self evaluator newArrayWithAll: literals)
 ]
 
 { #category : #visiting }
 DASTInterpreter >> visitLiteralNode: aRBLiteralValueNode [ 
+	self stackPush: (self evaluator literalFrom: aRBLiteralValueNode value)
 
-	self stackPush: (aRBLiteralValueNode value asLiteralInObjectSpace: self evaluator objectSpace)
 ]
 
 { #category : #visiting }
@@ -328,12 +323,12 @@ DASTInterpreter >> visitMessageNode: aRBMessageNode [
 	(method isPrimitive and: [method isMessageValue not and: [method isOnDo not]] )  
 	ifTrue: [ | result |
 		result := self solvePrimitive: method receiver: receiver arguments: arguments.
-		result hasFailed 
+		(self evaluator primitiveResultIsError: result) 
 			ifFalse: [ ^ self stackPush: result value ]
 			ifTrue: [ 
 			" Remove pragma node from method body to prevent infinit loop 
 			  and continue with the excecution of the method body" 
-			  Transcript show: method primitive asString, ' ', receiver basicClass className asString, (arguments at: 1) asString, Character cr.
+			  
 			  newContext := newContext removePrimitiveFromMethod;yourself.
 			  Transcript show: ' continuar ', Character cr.
 			

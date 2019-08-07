@@ -78,14 +78,6 @@ DASTMethod >> isPrimitive [
 ]
 
 { #category : #accessing }
-DASTMethod >> methodClass [
-
-	^ (nodeAST compilationContext) 
-		ifNil: [ UndefinedObject ] 
-		ifNotNil: [ nodeAST methodClass ]
-]
-
-{ #category : #accessing }
 DASTMethod >> primitive [ 
 	^ nodeAST primitive
 ]

@@ -7,6 +7,16 @@ Class {
 	#category : #'DebuggableASTInterpreter-Contexts'
 }
 
+{ #category : #highlighting }
+DASTMethodContext >> highlightInterval [
+	^ self currentNode debugHighlightRange
+]
+
+{ #category : #accessing }
+DASTMethodContext >> icon [
+	^ Smalltalk iconNamed: #smallWarningIcon
+]
+
 { #category : #initialization }
 DASTMethodContext >> initializeContext [
 

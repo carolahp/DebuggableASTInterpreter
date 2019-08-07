@@ -19,11 +19,6 @@ DASTBlock class >> lookupSelector: selector [
 	
 ]
 
-{ #category : #lookup }
-DASTBlock class >> lookupSelector: selector installingMissingClassesWithClassLoader: aPBSpurClassLoaderCandle [ 
-	^ self lookupSelector: selector
-]
-
 { #category : #accessing }
 DASTBlock >> basicClass [
 	^ self class
