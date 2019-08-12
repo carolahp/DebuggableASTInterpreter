@@ -27,11 +27,6 @@ Class {
 	#category : #'DebuggableASTInterpreter-Contexts'
 }
 
-{ #category : #'instance creation' }
-DASTContext class >> newWithSender: aDASTContext receiver: aReceiver messageNode: aRBMessageNode [ 
-	self shouldNotImplement 
-]
-
 { #category : #instantiation }
 DASTContext class >> newWithSender: aDASTContext receiver: aReceiver messageNode: aRBMessageNode evaluator: aDASTEvaluator [ 
 	| context |

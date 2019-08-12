@@ -59,7 +59,7 @@ DASTInterpreter >> evaluateAST: aRBNode [
 { #category : #evaluating }
 DASTInterpreter >> evaluateAST: aRBNode withTemps: aCollection [ 
 
-	self initializeWithProgram: aRBNode withTemps: aCollection.
+	self initializeWithProgram: aRBNode withTemps: aCollection astCache: astCache.
 	^ self evaluate.
 ]
 
@@ -98,13 +98,14 @@ DASTInterpreter >> initializeWithEvaluator: anEPASTEvaluator [
 
 { #category : #initialization }
 DASTInterpreter >> initializeWithProgram: aRBNode [
-	^self initializeWithProgram: aRBNode withTemps: #()
+	^self initializeWithProgram: aRBNode withTemps: #() astCache: astCache
 	
 ]
 
 { #category : #evaluating }
-DASTInterpreter >> initializeWithProgram: aRBNode withTemps: aCollection [
+DASTInterpreter >> initializeWithProgram: aRBNode withTemps: aCollection astCache: anIdentityDictionary [
 	| visitor nodes rootContext |
+	astCache := anIdentityDictionary. 
 	programCounter := 0.
 	visitor := DASTPostOrderTreeVisitor new.
 	

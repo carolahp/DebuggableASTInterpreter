@@ -20,7 +20,7 @@ DASTMethodContext >> icon [
 { #category : #initialization }
 DASTMethodContext >> initializeContext [
 
-	| compiledMethod theMethod visitor aClass aSelector |
+	| theMethod theClassMethodDic aClass aSelector result |
 	
 	self	parent: sender.
 	aSelector := messageNode selector.
@@ -28,13 +28,20 @@ DASTMethodContext >> initializeContext [
 	aClass := (self receiver isNil and: [ aSelector = #value ]) 
 		ifTrue: [ self halt. BlockClosure ]
 		ifFalse: [ self getClassForLookup ].
-	
-	compiledMethod := self lookupSelector: aSelector startInClass: aClass.
-	theMethod := DASTMethod new initializeWith: compiledMethod ast.
-	
-	visitor := DASTPostOrderTreeVisitor new.
-	theMethod body acceptVisitor: visitor.
-	nodes := visitor stack.
+
+	self flag: 'refactor me'.
+	theClassMethodDic := self evaluator astCache at: aClass name ifAbsentPut: [ 
+		IdentityDictionary new 
+		].
+	 result := theClassMethodDic at: aSelector ifAbsentPut: [ |compiledMethod ast visitor flatNodes |
+			compiledMethod := self lookupSelector: aSelector startInClass: aClass.
+			ast := DASTMethod new initializeWith: compiledMethod ast. 
+			visitor := DASTPostOrderTreeVisitor new.
+			ast body acceptVisitor: visitor.
+			flatNodes := visitor stack.		
+			{ ast .  flatNodes }].
+	theMethod := (result at:1) copy.
+	nodes := (result at:2) copy.
 	currentNode := nodes top.
 	
 	self 	methodOrBlock: theMethod;

@@ -32,6 +32,11 @@ DASTEvaluator >> assignInstanceVariable: name inObject: anObject value: value [
 
 ]
 
+{ #category : #accessing }
+DASTEvaluator >> astCache [
+	^ astCache
+]
+
 { #category : #encoding }
 DASTEvaluator >> blockFrom: aDASTBlock [
 	^ (self objectSpace backend mirrorOnExternalHandle: aDASTBlock) asDASTBlockMirror
@@ -90,6 +95,7 @@ DASTEvaluator >> initialize [
 
 	super initialize.
 	interpreterClass := DASTInterpreter.
+	astCache := IdentityDictionary new.
 	
 ]
 
