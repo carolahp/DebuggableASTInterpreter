@@ -7,6 +7,11 @@ Class {
 	#category : #'DebuggableASTInterpreter-Closures'
 }
 
+{ #category : #'gt-inspector-extension' }
+DASTMethod >> bodyOffset [
+	^ self selectorFormatted size + (self isNoMethod ifTrue: [ 1 ] ifFalse: [ 0 ])
+]
+
 { #category : #accessing }
 DASTMethod >> evaluatePrimitive [
 	^ evaluatePrimitive ifNil: [ evaluatePrimitive := true ]
@@ -20,11 +25,10 @@ DASTMethod >> evaluatePrimitive: aBoolean [
 { #category : #'gt-inspector-extension' }
 DASTMethod >> gtInspectorIn: composite [
 	<gtInspectorPresentationOrder: 5>
-	^composite text
+	^ composite text
 		title: 'source';
-		display: [ '(',self methodClass asString , ')>>', 
-						self sourceCode asString
-			];
+		display:
+				[ self sourceCodeWithClassAndSelector ];
 		when: [ true ]
 ]
 
@@ -32,11 +36,9 @@ DASTMethod >> gtInspectorIn: composite [
 DASTMethod >> gtInspectorIn: composite highlightInterval: anInterval [
 	^composite text
 		title: 'Source with Interval';
-		display: [ '(',self methodClass asString , ')>>', 
-						self sourceCode asString
-			];
+		display: [ self sourceCodeWithClassAndSelector	 ];
 		initialize: [ :presentation | 
-			presentation selectionInterval: (anInterval collect: [:each | each + ( '(',self methodClass asString , ')>>') size])];
+			presentation selectionInterval: (anInterval collect: [:each | each + self bodyOffset])];
 		when: [ true ]
 ]
 
@@ -67,6 +69,11 @@ DASTMethod >> isNamedPrimitive [
 	^ self primitive = 117
 ]
 
+{ #category : #testing }
+DASTMethod >> isNoMethod [
+	^(self methodClass = UndefinedObject) and: [ self selector = #noMethod ]
+]
+
 { #category : #accessing }
 DASTMethod >> isOnDo [
 	^ nodeAST primitive = 199
@@ -85,4 +92,15 @@ DASTMethod >> primitive [
 { #category : #accessing }
 DASTMethod >> selector [
 	^ nodeAST selector
+]
+
+{ #category : #'gt-inspector-extension' }
+DASTMethod >> selectorFormatted [
+	^ '(' , self methodClass asString , ')>>',
+		(self isNoMethod ifTrue: [ self selector, Character lf ] ifFalse: [ '' ])
+]
+
+{ #category : #'gt-inspector-extension' }
+DASTMethod >> sourceCodeWithClassAndSelector [
+	^ self selectorFormatted , self sourceCode asString "sourceCode will contain the selector of the method at the beginning except for the root method noMethod"
 ]

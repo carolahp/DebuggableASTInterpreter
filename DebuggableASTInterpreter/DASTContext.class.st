@@ -283,8 +283,7 @@ DASTContext >> gtInspectorSendersIn: composite [
 { #category : #'gt-extension' }
 DASTContext >> gtInspectorSourceIn: composite [
 	<gtInspectorPresentationOrder: 0> 
-	
-	(self method gtInspectorIn: composite highlightInterval: (Interval from: self currentNode debugHighlightStart to: self currentNode debugHighlightStop))"
+	(self methodOrBlock gtInspectorIn: composite highlightInterval: (Interval from: self currentNode debugHighlightStart to: self currentNode debugHighlightStop))"
 		doItReceiver: [ self receiver ];
 		doItContext: [ self ]"
 ]
