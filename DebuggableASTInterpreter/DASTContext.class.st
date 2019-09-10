@@ -234,7 +234,7 @@ DASTContext >> getClassForLookup [
 
 { #category : #'gt-extension' }
 DASTContext >> gtInspectorSendersIn: composite [
-	<gtInspectorPresentationOrder: 0>
+	<gtInspectorPresentationOrder: 4>
 	^composite tree
 		rootsExpanded;
 		title: 'Senders';
