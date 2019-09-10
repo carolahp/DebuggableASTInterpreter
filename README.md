@@ -65,3 +65,7 @@ Finally, the message send itself is ready to be interpreted. If you evaluate `in
 ![Value stack](./Pictures/DASTExample5.png)  
 
 As you can see, the value of the message send is the point it created: `(1@2)`
+
+Inspecting the interpreter shows its evaluation stack. The source code of each element in the stack is highlighted accordingly to its evaluation step. It is necessary to refresh the inspector by hand after each step operation.
+
+![Node stack](./Pictures/DASTExample6.png) 
