@@ -46,7 +46,9 @@ DASTMethodContext >> isUnwindContext [
 DASTMethodContext >> printOn: aStream [
 	| selector class mclass  |
 			closure == nil
-				ifTrue: [ ^  aStream nextPutAll: 'DAST Context: this should happen' ].
+				ifTrue: [ ^  aStream nextPutAll: 'DAST Context: initializing' ].
+			(receiver isNil and: [ closure selector = #noMethod ])
+				ifTrue: [ ^  aStream nextPutAll: 'nil>>noMethod' ].
 			class := receiver class.
 			mclass := closure methodClass.
 			selector := closure selector ifNil: [ closure defaultSelector ].
