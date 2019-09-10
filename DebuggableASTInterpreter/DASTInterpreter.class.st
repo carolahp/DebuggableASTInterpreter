@@ -45,6 +45,15 @@ DASTInterpreter >> evaluate [
 	^ self stackTop
 ]
 
+{ #category : #'gt-extension' }
+DASTInterpreter >> gtInspectorContextsIn: composite [
+	<gtInspectorPresentationOrder: 1>
+	self currentContext ifNil: [ ^ composite ].
+	^composite fastList
+		title: 'Evaluation Stack';
+		display: [ {self currentContext} asOrderedCollection , self currentContext senders ]
+]
+
 { #category : #evaluation }
 DASTInterpreter >> increasePC [
 	programCounter := self programCounter + 1
