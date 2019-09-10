@@ -162,7 +162,9 @@ DASTInterpreter >> stepInto [
 	| node |
 	currentContext canExecute
 		ifFalse: [ DASTEvaluationTerminated signal ].
-	self visit: (node := currentContext nodes pop).
+	node := currentContext nodes pop.
+	currentContext currentNode: node.
+	self visit: node.
 	self increasePC.
 	currentContext executedNodes push: node.
 	^ self currentContext

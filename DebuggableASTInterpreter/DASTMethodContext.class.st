@@ -36,6 +36,11 @@ DASTMethodContext >> isBlockContext [
 	^ false
 ]
 
+{ #category : #testing }
+DASTMethodContext >> isNoMethod [
+	^ (receiver isNil and: [ closure selector = #noMethod ])
+]
+
 { #category : #initialization }
 DASTMethodContext >> isUnwindContext [
 	"is this context for  method that is marked?"
@@ -47,8 +52,8 @@ DASTMethodContext >> printOn: aStream [
 	| selector class mclass  |
 			closure == nil
 				ifTrue: [ ^  aStream nextPutAll: 'DAST Context: initializing' ].
-			(receiver isNil and: [ closure selector = #noMethod ])
-				ifTrue: [ ^  aStream nextPutAll: 'nil>>noMethod' ].
+			self isNoMethod 
+				ifTrue: [ ^  aStream nextPutAll: 'UndefinedObject>>noMethod' ].
 			class := receiver class.
 			mclass := closure methodClass.
 			selector := closure selector ifNil: [ closure defaultSelector ].

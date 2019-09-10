@@ -17,7 +17,8 @@ Class {
 		'sender',
 		'tempVarIndex',
 		'tempVarsNamesIndexes',
-		'unhandledException'
+		'unhandledException',
+		'currentNode'
 	],
 	#classVars : [
 		'valueToBlockMessages'
@@ -61,6 +62,16 @@ DASTContext >> canExecute [
 { #category : #'closure support' }
 DASTContext >> contextTag [
 	^ self
+]
+
+{ #category : #accessing }
+DASTContext >> currentNode [
+	^ currentNode
+]
+
+{ #category : #accessing }
+DASTContext >> currentNode: aRBVariableNode [ 
+	currentNode := aRBVariableNode
 ]
 
 { #category : #'accessing - private' }
@@ -231,6 +242,16 @@ DASTContext >> gtInspectorSendersIn: composite [
 		children: [ :each | each senders ]
 ]
 
+{ #category : #'gt-extension' }
+DASTContext >> gtInspectorSourceIn: composite [
+	<gtInspectorPresentationOrder: 0> 
+	| nodeHighlight |
+	nodeHighlight := self currentNode ifNil: [ self nodes first ] ifNotNil: [ self currentNode ].
+	(self methodOrBlock 
+		gtInspectorIn: composite 
+		highlightInterval: (Interval from: nodeHighlight debugHighlightStart to: nodeHighlight debugHighlightStop))
+]
+
 { #category : #accessing }
 DASTContext >> handleSignal: exception [
 	"Sent to handler (on:do:) contexts only.  If my exception class (first arg) handles exception then execute my handle block (second arg), otherwise forward this message to the next handler context.  If none left, execute exception's defaultAction (see nil>>handleSignal:)."
@@ -287,6 +308,11 @@ DASTContext >> isHandlerOrSignalingContext [
 	"Both BlockClosure>>on:do: (handler) and Context>>evaluateSignal: (signaling) 
 	are marked with primitive 199."
 	^((self isBlockContext) or: [ self isRoot ]) not and:  [closure primitive = 199]
+]
+
+{ #category : #testing }
+DASTContext >> isNoMethod [
+	^ false
 ]
 
 { #category : #testing }

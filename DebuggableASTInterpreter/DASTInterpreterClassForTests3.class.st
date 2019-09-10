@@ -7,6 +7,9 @@ Class {
 	#classVars : [
 		'classVar'
 	],
+	#classInstVars : [
+		'ivClassSide'
+	],
 	#category : #'DebuggableASTInterpreter-TestsClasses'
 }
 
