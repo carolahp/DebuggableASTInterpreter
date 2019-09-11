@@ -172,6 +172,7 @@ DASTInterpreter >> solvePrimitive: aMethod receiver: anObject arguments: anArray
 	 	
 	"apply primitive to object"
 	primitiveResult := self evaluator executePrimitiveMethod: aMethod withReceiver: anObject withArguments: anArray asArray.
+	
 	^ primitiveResult
 	
 ]
@@ -325,7 +326,7 @@ DASTInterpreter >> visitMessageNode: aRBMessageNode [
 	ifTrue: [ | result |
 		result := self solvePrimitive: method receiver: receiver arguments: arguments.
 		(self evaluator primitiveResultIsError: result) 
-			ifFalse: [ ^ self stackPush: result value ]
+			ifFalse: [ ^ self stackPush: (self evaluator primitiveResultValue: result ) ]
 			ifTrue: [ 
 			" Remove pragma node from method body to prevent infinit loop 
 			  and continue with the excecution of the method body" 

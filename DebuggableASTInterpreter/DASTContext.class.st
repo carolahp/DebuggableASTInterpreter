@@ -100,6 +100,11 @@ DASTContext >> contextTag [
 ]
 
 { #category : #accessing }
+DASTContext >> currentNode [
+	^ currentNode
+]
+
+{ #category : #accessing }
 DASTContext >> currentNode: anObject [
 	currentNode := anObject
 ]
@@ -283,9 +288,11 @@ DASTContext >> gtInspectorSendersIn: composite [
 { #category : #'gt-extension' }
 DASTContext >> gtInspectorSourceIn: composite [
 	<gtInspectorPresentationOrder: 0> 
-	(self methodOrBlock gtInspectorIn: composite highlightInterval: (Interval from: self currentNode debugHighlightStart to: self currentNode debugHighlightStop))"
-		doItReceiver: [ self receiver ];
-		doItContext: [ self ]"
+	| nodeHighlight |
+	nodeHighlight := self currentNode ifNil: [ self nodes first ] ifNotNil: [ self currentNode ].
+	(self methodOrBlock 
+		gtInspectorIn: composite 
+		highlightInterval: (Interval from: nodeHighlight debugHighlightStart to: nodeHighlight debugHighlightStop))
 ]
 
 { #category : #'gt-extension' }

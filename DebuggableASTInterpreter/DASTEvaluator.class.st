@@ -134,3 +134,8 @@ DASTEvaluator >> nilObject [
 DASTEvaluator >> primitiveResultIsError: anEPPrimitiveResult [ 
 	^ anEPPrimitiveResult hasFailed 
 ]
+
+{ #category : #'access primitives' }
+DASTEvaluator >> primitiveResultValue: anEPPrimitiveResult [ 
+	^ anEPPrimitiveResult value
+]

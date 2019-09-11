@@ -98,3 +98,8 @@ DASTSystemEnvironment >> primitiveResultIsError: anObject [
 	"result hasFailed"
 	^ (anObject isKindOf: Array ) and: [(anObject at: 1 ifAbsent: nil) = Context primitiveFailToken first ]
 ]
+
+{ #category : #primitive }
+DASTSystemEnvironment >> primitiveResultValue: anObject [
+	^ anObject
+]
