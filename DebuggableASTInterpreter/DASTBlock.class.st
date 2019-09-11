@@ -94,7 +94,7 @@ DASTBlock >> isPrimitive [
 
 { #category : #accessing }
 DASTBlock >> methodClass [
-	^ nodeAST methodNode methodClass
+	^ self outerContext methodOrBlock methodClass
 ]
 
 { #category : #accessing }
@@ -128,7 +128,7 @@ DASTBlock >> selector [
 
 { #category : #'gt-extension' }
 DASTBlock >> sourceCodeInMethod [
-	^ '(', self outerContext methodOrBlock methodClass asString , ')>>', self nodeAST source asString
+	^ '(', self methodClass asString , ')>>', self nodeAST source asString
 	
 ]
 

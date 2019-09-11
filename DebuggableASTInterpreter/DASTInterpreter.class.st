@@ -1,5 +1,5 @@
 "
-I can interpret a program represented as an AST tree
+I can interpret a program represented as an AST
 "
 Class {
 	#name : #DASTInterpreter,

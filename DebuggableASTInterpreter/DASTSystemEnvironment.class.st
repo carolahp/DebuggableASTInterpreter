@@ -1,6 +1,9 @@
 Class {
 	#name : #DASTSystemEnvironment,
 	#superclass : #DASTEnvironment,
+	#instVars : [
+		'astCache'
+	],
 	#category : #'DebuggableASTInterpreter-Environments'
 }
 
@@ -16,6 +19,11 @@ DASTSystemEnvironment >> assignInstanceVariable: name inObject: anObject value: 
 	(anObject class allInstVarNames includes: name)
 		ifTrue: [ anObject instVarNamed: name put: value .  ^ value].
 	^ nil.
+]
+
+{ #category : #accessing }
+DASTSystemEnvironment >> astCache [
+	^ astCache
 ]
 
 { #category : #encoding }
@@ -57,6 +65,12 @@ self error: 'Variable ', aString , ' not defined!'
 DASTSystemEnvironment >> findInstanceVariable: aString inObject: anObject [ 
 	^ [ anObject instVarNamed: aString ]
 		on: InstanceVariableNotFound do: [ nil ] 
+]
+
+{ #category : #initialize }
+DASTSystemEnvironment >> initialize [
+	super initialize.
+	astCache := IdentityDictionary new
 ]
 
 { #category : #testing }

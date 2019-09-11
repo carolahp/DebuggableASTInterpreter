@@ -85,6 +85,11 @@ DASTMethod >> isPrimitive [
 ]
 
 { #category : #accessing }
+DASTMethod >> methodClass [
+	^ [nodeAST methodClass] on: Exception do: [ nil class ]
+]
+
+{ #category : #accessing }
 DASTMethod >> primitive [ 
 	^ nodeAST primitive
 ]
