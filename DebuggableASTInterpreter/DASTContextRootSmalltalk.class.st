@@ -10,7 +10,9 @@ Class {
 
 { #category : #accessing }
 DASTContextRootSmalltalk >> assignVariable: name value: value [
-	self evaluator environment setGlobal: name value: value
+	(self findVariable: name)
+	   ifNotNil: [ self evaluator environment setGlobal: name value: value. ^ true ].
+	^ false
 ]
 
 { #category : #accessing }

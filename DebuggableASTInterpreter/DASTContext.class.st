@@ -61,21 +61,20 @@ DASTContext >> assignVariable: name value: value [
 	"Temporary variables assignment"
 	(self lookupContextDefiningLocalVariable: name)
 		ifNotNil: [ :definingContext | definingContext at: name put: value. ^ self ].
-	
-	"receiverClass := receiver basicClass asRemoteClassOnEnvironment: (EPRemoteEnvironment on: evaluator objectSpace backend systemDictionary)."
-	"Instance variables assignment"
-	
+			
+   "Instance variables assignment"	
 	(self evaluator assignInstanceVariable: name inObject: self receiver value: value)
-	ifNotNil: [ ^ self ].
+		ifTrue: [ ^ value ].
 	
+	"Class variables assignment"	
 	(self evaluator assignClassVariable: name inObject: self receiver value: value)
-	ifNotNil: [ ^self ].
+		ifTrue: [ ^ value ].
 	
-	" Global variables "
-	(self rootContext findVariable: name)
-	ifNotNil: [ self rootContext assignVariable: name value: value. ^ self ].
+   " Global variables "
+	(self rootContext assignVariable: name value: value)
+	   ifTrue: [ ^ value ].
+	  Error signal: 'Assignment operation failed for variable "' , name , '" with value "', value asString, '"'.
 		
-	Error signal: 'Assignment operation failed for variable "' , name , '" with value "', value asString, '"'.
 	
 	
 	
@@ -404,9 +403,9 @@ DASTContext >> lookupContextDefiningLocalVariable: aByteSymbol [
 	
 	(self definesLocalVariableNamed: aByteSymbol) ifTrue: [ ^ self ].
 	
-	^ self isBlockContext
-		ifTrue: [ closure outerContext lookupContextDefiningLocalVariable: aByteSymbol ]
-		ifFalse: [ nil ]
+	self isBlockContext
+		ifTrue: [ ^ closure outerContext lookupContextDefiningLocalVariable: aByteSymbol ]
+		ifFalse: [ ^ nil ]
 ]
 
 { #category : #'API-lookup' }

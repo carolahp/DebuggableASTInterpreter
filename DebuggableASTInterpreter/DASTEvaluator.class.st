@@ -15,8 +15,8 @@ DASTEvaluator >> assignClassVariable: name inObject: anObject value: value [
 		ifTrue: [ 
 			| rDictionary |
 			rDictionary := EPRemoteDictionary on: anObject basicClass classPool. 
-			rDictionary at: name put: value . ^ value].
-	^nil
+			rDictionary at: name put: value . ^ true].
+	^ false
 ]
 
 { #category : #'variables-instance' }
@@ -27,9 +27,8 @@ DASTEvaluator >> assignInstanceVariable: name inObject: anObject value: value [
 		ifTrue: [ |ivIndex| 
 			ivIndex := rgClass instVarIndexFor: name ifAbsent: [ self halt ].
 			anObject instanceVariableAtIndex: ivIndex put: value. 
-			^ value].
-	^ nil
-
+			^ true].
+	^ false
 ]
 
 { #category : #accessing }

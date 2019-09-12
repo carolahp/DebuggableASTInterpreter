@@ -10,15 +10,15 @@ Class {
 { #category : #'variables-class' }
 DASTSystemEnvironment >> assignClassVariable: name inObject: anObject value: value [
 	(anObject class classPool includesKey: name)
-		ifTrue: [ anObject class classPool at: name put: value . ^ value].
-	^nil
+		ifTrue: [ anObject class classPool at: name put: value . ^ true].
+	^ false
 ]
 
 { #category : #'variables-instance' }
 DASTSystemEnvironment >> assignInstanceVariable: name inObject: anObject value: value [
 	(anObject class allInstVarNames includes: name)
-		ifTrue: [ anObject instVarNamed: name put: value .  ^ value].
-	^ nil.
+		ifTrue: [ anObject instVarNamed: name put: value .  ^ true].
+	^ false
 ]
 
 { #category : #accessing }
