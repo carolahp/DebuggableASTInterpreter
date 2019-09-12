@@ -19,10 +19,10 @@ DASTContextRootSmalltalk >> findVariable: aByteSymbol [
 	^ self evaluator findGlobalVariable: aByteSymbol
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'gt-extension' }
 DASTContextRootSmalltalk >> gtInspectorSourceIn: composite [
 	<gtInspectorPresentationOrder: 30> 
-	'asd'
+	''
 ]
 
 { #category : #accessing }

@@ -53,6 +53,12 @@ DASTBlock >> gtInspectorIn: composite [
 		when: [ true ]
 ]
 
+{ #category : #'gt-extension' }
+DASTBlock >> gtInspectorIn: aGLMCompositePresentation highlightInterval: aCollection [ 
+	^ self outerContext methodOrBlock gtInspectorIn: aGLMCompositePresentation highlightInterval: aCollection 
+
+]
+
 { #category : #accessing }
 DASTBlock >> initializeInterval [
 	| parent methodClass intervalOffset |
