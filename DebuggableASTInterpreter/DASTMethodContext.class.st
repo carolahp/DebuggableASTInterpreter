@@ -20,16 +20,25 @@ DASTMethodContext >> icon [
 { #category : #initialization }
 DASTMethodContext >> initializeContext [
 
-	| theMethod theClassMethodDic aClass aSelector result |
+	| theMethod theClassMethodDic aClass aSelector result 
+	  compiledMethod ast visitor flatNodes | 
 	
 	self	parent: sender.
 	aSelector := messageNode selector.
 	
-	aClass := (self receiver isNil and: [ aSelector = #value ]) 
-		ifTrue: [ self halt. BlockClosure ]
-		ifFalse: [ self getClassForLookup ].
-
-	self flag: 'refactor me'.
+	aClass := self getClassForLookup.
+	compiledMethod := self lookupSelector: aSelector startInClass: aClass.
+	ast := DASTMethod new initializeWith: compiledMethod ast. 
+	visitor := DASTPostOrderTreeVisitor new.
+	ast body acceptVisitor: visitor.
+	flatNodes := visitor stack.
+	
+	self 	methodOrBlock: ast;
+			nodes: flatNodes
+	
+	"the next comment contains the optimization for saving the methods already looked up. 
+	It is commented because it produces a loop forever when we interpret the interpreter interpreting a primitive, such as 1+2"
+	"
 	theClassMethodDic := self evaluator astCache at: aClass name ifAbsentPut: [ 
 		IdentityDictionary new 
 		].
@@ -43,9 +52,9 @@ DASTMethodContext >> initializeContext [
 	theMethod := (result at:1) copy.
 	nodes := (result at:2) copy.
 	currentNode := nodes top.
-	
 	self 	methodOrBlock: theMethod;
 			nodes: nodes.
+	"
 	
 ]
 

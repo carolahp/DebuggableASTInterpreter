@@ -103,3 +103,8 @@ DASTSystemEnvironment >> primitiveResultIsError: anObject [
 DASTSystemEnvironment >> primitiveResultValue: anObject [
 	^ anObject
 ]
+
+{ #category : #decoding }
+DASTSystemEnvironment >> valueOf: anObject [ 
+	^ anObject
+]

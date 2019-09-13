@@ -138,3 +138,8 @@ DASTEvaluator >> primitiveResultIsError: anEPPrimitiveResult [
 DASTEvaluator >> primitiveResultValue: anEPPrimitiveResult [ 
 	^ anEPPrimitiveResult value
 ]
+
+{ #category : #decoding }
+DASTEvaluator >> valueOf: anEPMirror [
+	^ anEPMirror value
+]

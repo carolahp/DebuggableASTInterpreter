@@ -386,6 +386,20 @@ DASTInterpreterTests >> testInterpretItselfAddition [
 		  equals: 6
 ]
 
+{ #category : #'tests-reflective-interpreter' }
+DASTInterpreterTests >> testInterpretItselfInteger [
+
+	self assert: (self evaluateProgram: 'DASTInterpreter new initializeWithProgram: (RBParser parseExpression: ''1''); evaluate')
+		  equals: 1
+]
+
+{ #category : #'tests-reflective-interpreter' }
+DASTInterpreterTests >> testInterpretItselfLessThan [
+
+	self assert: (self evaluateProgram: 'DASTInterpreter new initializeWithProgram: (RBParser parseExpression: ''1<2''); evaluate')
+		  equals: true
+]
+
 { #category : #'tests-blocks' }
 DASTInterpreterTests >> testInterpretSendingMessageDifferentFromValueToBlock [
 	
@@ -649,6 +663,13 @@ DASTInterpreterTests >> testPrimitiveAdd [
 ]
 
 { #category : #'tests-primitives' }
+DASTInterpreterTests >> testPrimitiveCopy [
+
+	self assert: (self evaluateProgram: '(Point x:1 y:2) copy')
+		  equals: 1@2 
+]
+
+{ #category : #'tests-primitives' }
 DASTInterpreterTests >> testPrimitiveSubstract [
 
 	self assert: (self evaluateProgram: '^ 1-2')
@@ -721,7 +742,7 @@ DASTInterpreterTests >> testSuperTheReceiverRemains1 [
 DASTInterpreterTests >> testTranscript [
 	self skip.
 	self assert: (self evaluateProgram: 'Transcript show: #a' ) 
-		  equals: 1
+		  equals: Transcript
 		
 
 ]

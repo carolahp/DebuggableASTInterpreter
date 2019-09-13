@@ -166,14 +166,13 @@ DASTInterpreter >> solvePrimitive: aMethod receiver: anObject arguments: anArray
 			primitiveResult := anObject tryPrimitive: anInteger withArgs: anArray asArray.
 			^ self stackPush: primitiveResult
 		].
-		self halt.
-		"DASTPrimitiveFailed signalWithPrimitive: anInteger receiver: anObject "
+		DASTPrimitiveFailed signalWithPrimitive: anInteger receiver: anObject 
 	].
-	 	
 	"apply primitive to object"
 	primitiveResult := self evaluator executePrimitiveMethod: aMethod withReceiver: anObject withArguments: anArray asArray.
-	
-	^ primitiveResult
+	(self evaluator primitiveResultIsError: primitiveResult)
+		ifTrue: [ DASTPrimitiveFailed signalWithPrimitive: anInteger receiver: anObject ].
+	self stackPush: (self evaluator valueOf: primitiveResult)
 	
 ]
 
@@ -323,17 +322,13 @@ DASTInterpreter >> visitMessageNode: aRBMessageNode [
 	" Apply - invoke method "
 	(aRBMessageNode isCascaded and: [aRBMessageNode parent messages last ~= aRBMessageNode]) ifTrue: [ self stackPush: receiver ]. 
 	(method isPrimitive and: [method isMessageValue not and: [method isOnDo not]] )  
-	ifTrue: [ | result |
-		result := self solvePrimitive: method receiver: receiver arguments: arguments.
-		(self evaluator primitiveResultIsError: result) 
-			ifFalse: [ ^ self stackPush: (self evaluator primitiveResultValue: result ) ]
-			ifTrue: [ 
+	ifTrue: [ 
+		[ ^ self solvePrimitive: method receiver: receiver arguments: arguments ]
+		on: DASTPrimitiveFailed 
+		do: [ 
 			" Remove pragma node from method body to prevent infinit loop 
-			  and continue with the excecution of the method body" 
-			  
+			  and continue with the excecution of the method body"
 			  newContext := newContext removePrimitiveFromMethod;yourself.
-			  Transcript show: ' continuar ', Character cr.
-			
 			]
 		].
 	" Set new context "
