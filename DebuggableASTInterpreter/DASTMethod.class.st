@@ -9,7 +9,7 @@ Class {
 
 { #category : #'gt-inspector-extension' }
 DASTMethod >> bodyOffset [
-	^ self selectorFormatted size + (self isNoMethod ifTrue: [ 1 ] ifFalse: [ 0 ])
+	^ self selectorFormatted size "+ (self isNoMethod ifTrue: [ 1 ] ifFalse: [ 0 ])"
 ]
 
 { #category : #accessing }
