@@ -53,9 +53,10 @@ DASTSystemEnvironment >> executePrimitiveMethod: aDASTMethod withReceiver: anObj
 
 { #category : #'variables-class' }
 DASTSystemEnvironment >> findClassVariable: aName inObject: anObject [
+	
 	^ anObject isClass 
-		ifTrue: [ anObject bindingOf: aName ]
-		ifFalse:[ anObject class bindingOf: aName ] 
+		ifTrue: [ anObject innerBindingOf: aName ]
+		ifFalse:[ anObject class innerBindingOf: aName ] 
 	
 ]
 
