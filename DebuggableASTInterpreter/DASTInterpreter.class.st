@@ -398,9 +398,8 @@ DASTInterpreter >> visitThisContextNode: aRBThisContextNode [
 DASTInterpreter >> visitVariableNode: aRBVariableNode [ 
 
 	aRBVariableNode isDefinition
-		ifTrue: [ currentContext at: aRBVariableNode name put: nil ].
+		ifTrue: [ currentContext at: aRBVariableNode name put: evaluator nilObject ].
 		
-		self haltIf: [ aRBVariableNode name = 'array' ].
 	self stackPush: (currentContext findVariable: aRBVariableNode name)
 ]
 
