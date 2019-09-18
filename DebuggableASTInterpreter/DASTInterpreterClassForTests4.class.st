@@ -5,6 +5,11 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
+DASTInterpreterClassForTests4 >> getClassVar5 [
+	^ classVar5 ifNil: [ classVar5 := 5 ]
+]
+
+{ #category : #'as yet unclassified' }
 DASTInterpreterClassForTests4 >> m1 [
 	^super m1
 ]

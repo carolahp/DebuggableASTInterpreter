@@ -711,6 +711,16 @@ DASTInterpreterTests >> testSendMessageToBlock [
 ]
 
 { #category : #'tests-variables-class' }
+DASTInterpreterTests >> testSetAndGetClassVariableDefinedInParentFromMethodInInstanceSide [
+	self skip.
+	"ToDo: reimplement when the environment contains representation of objects"
+	self assert: (self evaluateProgram: 'DASTInterpreterClassForTests4 new getClassVar5' ) 
+		  equals: 5
+		
+
+]
+
+{ #category : #'tests-variables-class' }
 DASTInterpreterTests >> testSetAndGetClassVariableFromMethodInInstanceSide [
 	self skip.
 	"ToDo: reimplement when the environment contains representation of objects"
