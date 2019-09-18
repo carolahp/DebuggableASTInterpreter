@@ -10,12 +10,15 @@ Class {
 { #category : #'variables-class' }
 DASTEvaluator >> assignClassVariable: name inObject: anObject value: value [
 	| rgClass |
-	rgClass := anObject basicClass asRGClass.
-	(rgClass classVarNames contains: [:c | c = name])
-		ifTrue: [ 
-			| rDictionary |
+	
+	(self findClassVariable: name inObject: anObject) ifNotNil: [ 
+		:var | 
+		var value: value. ^ true
+		"| rDictionary |
 			rDictionary := EPRemoteDictionary on: anObject basicClass classPool. 
-			rDictionary at: name put: value . ^ true].
+			rDictionary at: name put: value " 
+		]. 
+
 	^ false
 ]
 
@@ -65,7 +68,8 @@ DASTEvaluator >> findClassVariable: aString inObject: anObject [
 		ifTrue: [ anObject asClassMirror ]
 		ifFalse: [ anObject basicClass ].
 	hlClass := mClass asRemoteClassOnEnvironment: (EPRemoteEnvironment on: self environment bootstrapEnvironment).
-	^ hlClass bindingOf: aString.
+	
+	^ hlClass innerBindingOf: aString.
 ]
 
 { #category : #'variables-global' }

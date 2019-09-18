@@ -247,7 +247,7 @@ DASTContext >> findNextUnwindContextUpTo: aContext [
 DASTContext >> findVariable: aByteSymbol [
 	|association|
 	"Return the value of a variable. If this context redefines a variable defined by its parent context, this method will return the variable value for this context"
-	"self haltIf: [ aByteSymbol = 'array' ]."
+	
 	
 	"local variables"
 	association := self findLocalVariable: aByteSymbol.
