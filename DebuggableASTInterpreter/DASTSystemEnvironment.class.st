@@ -9,8 +9,13 @@ Class {
 
 { #category : #'variables-class' }
 DASTSystemEnvironment >> assignClassVariable: name inObject: anObject value: value [
-	(anObject class classPool includesKey: name)
-		ifTrue: [ anObject class classPool at: name put: value . ^ true].
+	(anObject class allClassVarNames includes: name)
+		ifTrue: [ | parent |
+			parent:= anObject class.
+			[ parent isNotNil ] whileTrue: [
+				(parent classPool keys includes: name) ifTrue: [ parent classPool at: name put: value . ^ true].
+				parent := parent superclass ]
+			].
 	^ false
 ]
 

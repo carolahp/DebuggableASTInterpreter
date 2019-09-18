@@ -18,3 +18,8 @@ DASTInterpreterClassForTests4 >> m1 [
 DASTInterpreterClassForTests4 >> m2 [
 	^42
 ]
+
+{ #category : #'as yet unclassified' }
+DASTInterpreterClassForTests4 >> setClassVar5: aValue [
+	^ classVar5 := 5
+]
