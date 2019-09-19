@@ -288,6 +288,10 @@ DASTContext >> gtInspectorSendersIn: composite [
 DASTContext >> gtInspectorSourceIn: composite [
 	<gtInspectorPresentationOrder: 0> 
 	| nodeHighlight |
+	self nodes 
+		ifEmpty: [ ^ composite text
+						title: 'Source Code';
+						display: [ 'No method assigned to context yet'	 ] ].
 	
 	nodeHighlight := self isCurrentContext 
 		ifTrue: [ (self nodes top ifNil: [ self nodes first ] ifNotNil: [ self nodes top] ) ]
