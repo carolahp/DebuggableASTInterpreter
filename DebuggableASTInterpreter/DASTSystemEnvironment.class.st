@@ -58,11 +58,27 @@ DASTSystemEnvironment >> findClassVariable: aName inObject: anObject [
 	
 ]
 
+{ #category : #'variables-class' }
+DASTSystemEnvironment >> findClassVariable: aName inObjectAndItsParents: anObject [
+	| objclass objparent |
+	objclass := anObject isClass 
+		ifTrue: [ anObject ]
+		ifFalse:[ anObject class ].
+	
+	
+	objparent := objclass.
+	[ objparent ] whileNotNil: [ 
+		(objparent innerBindingOf: aName) ifNotNil: [:assoc | ^ assoc].
+		objparent := objparent superclass.
+		 ].
+	^ nil
+]
+
 { #category : #'variables - global' }
 DASTSystemEnvironment >> findGlobalVariable: aString [ 
-	^ Smalltalk globals at: aString ifAbsent: [
+	^ aString -> (Smalltalk globals at: aString ifAbsent: [
 self error: 'Variable ', aString , ' not defined!'
-]
+])
 ]
 
 { #category : #'variables-instance' }

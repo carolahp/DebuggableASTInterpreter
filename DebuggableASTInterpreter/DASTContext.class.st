@@ -169,7 +169,7 @@ DASTContext >> executedNodes [
 
 { #category : #'API-lookup' }
 DASTContext >> findClassVariable: aName [
-	^ self evaluator findClassVariable: aName inObject: self receiver
+	^ self evaluator findClassVariable: aName inObjectAndItsParents: self receiver
 	
 ]
 

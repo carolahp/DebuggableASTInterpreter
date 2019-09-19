@@ -33,7 +33,7 @@ DASTContextRootSmalltalk >> findLocalVariable: aName [
 
 { #category : #accessing }
 DASTContextRootSmalltalk >> findVariable: aName [
-	self shouldNotImplement 
+	^ self findGlobalVariable: aName
 ]
 
 { #category : #'gt-extension' }

@@ -72,11 +72,29 @@ DASTEvaluator >> findClassVariable: aString inObject: anObject [
 	^ hlClass innerBindingOf: aString.
 ]
 
+{ #category : #'variables-class' }
+DASTEvaluator >> findClassVariable: aName inObjectAndItsParents: anObject [
+	| mobjclass hobjclass hobjparent |
+	self halt.
+	mobjclass := anObject isClassMirror
+		ifTrue: [ anObject asClassMirror ]
+		ifFalse: [ anObject basicClass ].
+	hobjclass := mobjclass asRemoteClassOnEnvironment: (EPRemoteEnvironment on: self environment bootstrapEnvironment).
+
+	hobjparent := hobjclass.
+	[ hobjparent isNilObject ] whileFalse: [ 
+		(hobjparent innerBindingOf: aName) ifNotNil: [:assoc | ^ assoc].
+		hobjparent := hobjparent superclass.
+		 ].
+	^ nil
+	
+]
+
 { #category : #'variables-global' }
 DASTEvaluator >> findGlobalVariable: aString [ 
 	 ^ (self environment bindingOf: aString) 
 		ifNil: [ self error: 'Variable ', aString , ' not defined!' ] 
-		ifNotNil: [  :b | b value ]
+		ifNotNil: [  :b | b ]
 ]
 
 { #category : #'variables-instance' }
