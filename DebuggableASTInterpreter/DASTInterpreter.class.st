@@ -228,6 +228,18 @@ DASTInterpreter >> stepOver [
 	^ self currentContext
 ]
 
+{ #category : #evaluation }
+DASTInterpreter >> stepThrough [
+	| initialContext |
+	initialContext := currentContext.
+	self stepInto.
+	[ (currentContext = initialContext or: currentContext senders size <= initialContext senders size)
+		or: ((currentContext parent = initialContext) and: currentContext isBlockContext) ]
+	whileFalse: [ self stepInto ]. 
+	
+	^ self currentContext
+]
+
 { #category : #visiting }
 DASTInterpreter >> visit: aRBNode [
 

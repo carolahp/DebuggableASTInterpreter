@@ -373,6 +373,11 @@ DASTContext >> isBlockContext [
 ]
 
 { #category : #testing }
+DASTContext >> isCurrentContext [
+	^ self evaluator interpreter currentContext = self
+]
+
+{ #category : #testing }
 DASTContext >> isEmpty [
 	
 	^ variablesDict isEmpty.
