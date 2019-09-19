@@ -25,6 +25,18 @@ DASTBlockContext >> contextTag [
 	^ closure outerContext
 ]
 
+{ #category : #'API-lookup' }
+DASTBlockContext >> findLocalVariable: aName [
+	^ variablesDict 
+		associationAt: aName 
+		ifAbsent: [ 
+			(closure outerContext findLocalVariable: aName) ifNil: [ 
+				(self sender findLocalVariable: aName) ifNil: [ ^ nil ]
+			]
+		].
+		
+]
+
 { #category : #initialization }
 DASTBlockContext >> initializeContext [
 	

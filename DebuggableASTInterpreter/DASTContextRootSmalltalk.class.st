@@ -25,10 +25,15 @@ DASTContextRootSmalltalk >> assignVariable: name value: value [
 	^ false
 ]
 
+{ #category : #'API-lookup' }
+DASTContextRootSmalltalk >> findLocalVariable: aName [
+	^ nil
+		
+]
+
 { #category : #accessing }
-DASTContextRootSmalltalk >> findVariable: aByteSymbol [
-	
-	^ self evaluator findGlobalVariable: aByteSymbol
+DASTContextRootSmalltalk >> findVariable: aName [
+	self shouldNotImplement 
 ]
 
 { #category : #'gt-extension' }

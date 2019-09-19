@@ -2,7 +2,8 @@ Class {
 	#name : #DASTSystemEnvironment,
 	#superclass : #DASTEnvironment,
 	#instVars : [
-		'astCache'
+		'astCache',
+		'interpreter'
 	],
 	#category : #'DebuggableASTInterpreter-Environments'
 }
@@ -74,6 +75,16 @@ DASTSystemEnvironment >> findInstanceVariable: aString inObject: anObject [
 DASTSystemEnvironment >> initialize [
 	super initialize.
 	astCache := IdentityDictionary new
+]
+
+{ #category : #accessing }
+DASTSystemEnvironment >> interpreter [
+	^ interpreter
+]
+
+{ #category : #accessing }
+DASTSystemEnvironment >> interpreter: aDASTInterpreter [ 
+	interpreter := aDASTInterpreter
 ]
 
 { #category : #testing }

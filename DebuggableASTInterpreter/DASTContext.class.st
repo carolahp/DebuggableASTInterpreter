@@ -186,6 +186,12 @@ DASTContext >> findContextSuchThat: testBlock [
 	^ nil
 ]
 
+{ #category : #accessing }
+DASTContext >> findGlobalVariable: aByteSymbol [
+	
+	^ self evaluator findGlobalVariable: aByteSymbol
+]
+
 { #category : #'API-lookup' }
 DASTContext >> findInstanceVariable: aName [
 	^ self evaluator findInstanceVariable: aName inObject: self receiver
@@ -193,9 +199,7 @@ DASTContext >> findInstanceVariable: aName [
 
 { #category : #'API-lookup' }
 DASTContext >> findLocalVariable: aName [
-	^ variablesDict 
-		associationAt: aName 
-		ifAbsent: [ nil ]
+	self subclassResponsibility 
 ]
 
 { #category : #'private-exceptions' }
@@ -247,24 +251,28 @@ DASTContext >> findNextUnwindContextUpTo: aContext [
 
 { #category : #'API-lookup' }
 DASTContext >> findVariable: aByteSymbol [
-	|association|
 	"Return the value of a variable. If this context redefines a variable defined by its parent context, this method will return the variable value for this context"
 	
 	"local variables"
-	association := self findLocalVariable: aByteSymbol.
-	association ifNotNil: [ ^ association value ].
+	(self findLocalVariable: aByteSymbol)
+		ifNotNil: [ :assoc | ^ assoc value ].
 	
 	"instance variables"
-	association := self findInstanceVariable: aByteSymbol.
-	association ifNotNil: [ ^ association value ].
+	(self findInstanceVariable: aByteSymbol) 
+		ifNotNil: [ :assoc |  ^ assoc value ].
 	
 	"class variables"
-	association := self findClassVariable: aByteSymbol.
-	association ifNotNil: [ ^ association value ].
+	(self findClassVariable: aByteSymbol)
+		ifNotNil: [ :assoc | ^ assoc value ].
 	
-	^ parent 
+	"global variables"
+	(self findGlobalVariable: aByteSymbol) 
+		ifNotNil: [ :assoc | ^ assoc value ].
+	
+	self error: 'Variable ', aByteSymbol , ' not defined!'
+	"^ parent 
 			ifNil: [ self error: 'Variable ', aByteSymbol , ' not defined!'  ] 
-			ifNotNil: [ :pc | pc findVariable: aByteSymbol ]
+			ifNotNil: [ :pc | pc findVariable: aByteSymbol ]"
 ]
 
 { #category : #'accessing - private' }
@@ -554,6 +562,7 @@ DASTContext >> returnContext [
 { #category : #accessing }
 DASTContext >> rootContext [
 	self sender ifNil: [ ^ self ].
+	
 	^ self sender rootContext
 ]
 

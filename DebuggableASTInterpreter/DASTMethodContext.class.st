@@ -9,12 +9,20 @@ Class {
 
 { #category : #'accessing - private' }
 DASTMethodContext >> allInstVars [ 
-	^ receiver allInstanceVariables
+	^ receiver allInstVarNames collectWithIndex: [ :name :i | name -> (receiver instVarAt: i) ]
 ]
 
 { #category : #'accessing - private' }
 DASTMethodContext >> allTemps [
 	^ self variablesDict associations
+]
+
+{ #category : #'API-lookup' }
+DASTMethodContext >> findLocalVariable: aName [
+	^ variablesDict 
+		associationAt: aName 
+		ifAbsent: [ nil ].
+		
 ]
 
 { #category : #highlighting }

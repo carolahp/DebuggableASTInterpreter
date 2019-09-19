@@ -90,6 +90,11 @@ DASTMethod >> methodClass [
 ]
 
 { #category : #accessing }
+DASTMethod >> pragmas [
+	^nodeAST pragmas
+]
+
+{ #category : #accessing }
 DASTMethod >> primitive [ 
 	^ nodeAST primitive
 ]

@@ -65,7 +65,7 @@ DASTInterpreter >> evaluateAST: aRBNode withTemps: aCollection [
 
 { #category : #accessing }
 DASTInterpreter >> evaluator [
-	^ evaluator ifNil: [ evaluator := DASTSystemEnvironment new ]
+	^ evaluator ifNil: [ evaluator := DASTSystemEnvironment new interpreter: self; yourself ]
 ]
 
 { #category : #'gt-extension' }
