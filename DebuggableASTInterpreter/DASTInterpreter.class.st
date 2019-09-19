@@ -397,7 +397,7 @@ DASTInterpreter >> visitTemporaryNode: aRBTemporaryNode [
 	| name |
 	name := aRBTemporaryNode name.
 	aRBTemporaryNode isDefinition 
-		ifTrue: [ currentContext at: name put: nil ]
+		ifTrue: [ currentContext at: name put: self evaluator nilObject ]
 		ifFalse: [ self stackPush: (currentContext findVariable: name)]
 ]
 
