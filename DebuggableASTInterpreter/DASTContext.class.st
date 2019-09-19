@@ -288,7 +288,7 @@ DASTContext >> gtInspectorSendersIn: composite [
 DASTContext >> gtInspectorSourceIn: composite [
 	<gtInspectorPresentationOrder: 0> 
 	| nodeHighlight |
-	nodeHighlight := self currentNode ifNil: [ self nodes first ] ifNotNil: [ self currentNode ].
+	nodeHighlight := "self currentNode"self nodes top ifNil: [ self nodes first ] ifNotNil: [ "self currentNode" self nodes top ].
 	(self methodOrBlock 
 		gtInspectorIn: composite 
 		highlightInterval: (Interval from: nodeHighlight debugHighlightStart to: nodeHighlight debugHighlightStop))
