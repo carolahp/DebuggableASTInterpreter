@@ -492,6 +492,13 @@ DASTInterpreterTests >> testLocalVarScopeWhenAccessedFromBlockAnidated [
 ]
 
 { #category : #'tests-variables-local' }
+DASTInterpreterTests >> testLocalVarScopeWhenAccessedFromSenderContext [
+
+	self should: [ self evaluateProgram:  'DASTInterpreterClassForTests4 new methodWithLocalVarZSetAs5AndThatReturns43. x' ]
+		  raise: Error
+]
+
+{ #category : #'tests-variables-local' }
 DASTInterpreterTests >> testLocalVarScopeWhenAsignedInOuterContextOfBlockAndUpdatedFromBlock [
 	
 	self assert: (self evaluateProgram: '^ DASTInterpreterClassForTests new getBlockThatAccessesVariableTSetAs42 value' ) 
@@ -589,7 +596,7 @@ DASTInterpreterTests >> testNonLocalReturn [
 
 { #category : #'tests-exceptions-ondo' }
 DASTInterpreterTests >> testOnDoChainExceptiongCatch [
-	self skip.
+	
 	self assert: (self evaluateProgram: '[ 1/0 ] on: SyntaxErrorNotification, ZeroDivide do: [ 1 ]') 
 		  equals: 1	
 ]

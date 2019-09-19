@@ -8,6 +8,16 @@ Class {
 	#category : #'DebuggableASTInterpreter-Contexts'
 }
 
+{ #category : #'accessing - private' }
+DASTContextRootSmalltalk >> allInstVars [ 
+	^#()
+]
+
+{ #category : #'accessing - private' }
+DASTContextRootSmalltalk >> allTemps [
+	^ #()
+]
+
 { #category : #accessing }
 DASTContextRootSmalltalk >> assignVariable: name value: value [
 	(self findVariable: name)

@@ -48,12 +48,14 @@ DASTContext class >> valueToBlockMessages [
 		ifNil: [ valueToBlockMessages := (BlockClosure methodDict select: [ :e | (201 to: 206) includes: e primitive ]) collect: [ :e | e selector ] ]
 ]
 
+{ #category : #'accessing variables' }
+DASTContext >> allInstVars [
+	self subclassResponsibility 
+]
+
 { #category : #'accessing - private' }
-DASTContext >> allTempsWithContext [
-	| associations |
-	associations := self variablesDict associations collect: [:each | {self asString . each key . each value}].
-	self sender ifNil: [ ^ associations ].
-	^ associations , self sender allTempsWithContext 
+DASTContext >> allTemps [
+	self subclassResponsibility 
 ]
 
 { #category : #'API-lookup' }
@@ -248,7 +250,6 @@ DASTContext >> findVariable: aByteSymbol [
 	|association|
 	"Return the value of a variable. If this context redefines a variable defined by its parent context, this method will return the variable value for this context"
 	
-	
 	"local variables"
 	association := self findLocalVariable: aByteSymbol.
 	association ifNotNil: [ ^ association value ].
@@ -302,25 +303,29 @@ DASTContext >> gtInspectorSourceIn: composite [
 ]
 
 { #category : #'gt-extension' }
-DASTContext >> gtInspectorTempVarsIn: composite [
+DASTContext >> gtInspectorVarsIn: composite [
 	<gtInspectorPresentationOrder: 1> 
 	
 	^ (composite fastTable)
-		title: 'TempVariables';
-		display: [ self allTempsWithContext ];
+		title: 'Variables';
+		display: [ 
+			(self allTemps    collect: [ :each | { 'temporal' . each key . each value } ]) , 
+			(self allInstVars collect: [ :each | { 'instance' . each key . each value } ]) ];
 		"children: [ :each | 
 			(each value isDictionary) 
 				ifTrue: [ each value associations ] 
 				ifFalse: [ (each value isArray and: [ each value allSatisfy: #isDictionary ])
 						ifTrue: [ each value collectWithIndex: [:x :i | i -> x ] ]
 						ifFalse: [ #() ] ] ];"
-		column: 'Origin' 
+		column: 'Type' 
 			evaluated: [:each | GTObjectPrinter asTruncatedTextFrom: (each at: 1) ];
 		column: 'Key' 
 			evaluated: [:each | GTObjectPrinter asTruncatedTextFrom: (each at: 2) ];
 		column: 'Value' 
 			evaluated: [:each | GTObjectPrinter asTruncatedTextFrom: (each at: 3) ];
-		
+		"column: 'Origin Context' 
+			evaluated: [:each | GTObjectPrinter asTruncatedTextFrom: (each at: 2) ];
+		"
 		selectionAct: [ :table |
 			table rawSelection do: [ :assoc | self removeKey: assoc key ].
 			table update ]
@@ -333,8 +338,8 @@ DASTContext >> gtInspectorTempVarsIn: composite [
 			selection isNil 
 			ifTrue:[nil]
 			ifFalse:[ (selection size = 1) 
-				ifTrue: [ selection anyOne value ] 
-				ifFalse: [ selection collect: #value ] ]]
+				ifTrue: [ (selection anyOne at: 3)  ] 
+				ifFalse: [ self halt. selection collect: [ :each | each at: 3 ] ] ]]
 ]
 
 { #category : #accessing }

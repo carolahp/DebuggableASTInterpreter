@@ -20,6 +20,13 @@ DASTInterpreterClassForTests4 >> m2 [
 ]
 
 { #category : #'as yet unclassified' }
+DASTInterpreterClassForTests4 >> methodWithLocalVarZSetAs5AndThatReturns43 [
+	| z |
+	z := 5.
+	^ 42
+]
+
+{ #category : #'as yet unclassified' }
 DASTInterpreterClassForTests4 >> setClassVar5: aValue [
 	^ classVar5 := 5
 ]

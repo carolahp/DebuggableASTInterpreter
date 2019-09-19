@@ -86,6 +86,13 @@ DASTInterpreter >> gtInspectorCurrentContextIn: composite [
 		ifNotNil: [ :ctx | ctx gtInspectorSourceIn: composite]
 ]
 
+{ #category : #'gt-extension' }
+DASTInterpreter >> gtInspectorVariablesIn: composite [
+	<gtInspectorPresentationOrder: 3>
+	self currentContext ifNil: [ ^ composite ].
+	^ self currentContext gtInspectorVarsIn: composite
+]
+
 { #category : #evaluation }
 DASTInterpreter >> increasePC [
 	programCounter := self programCounter + 1

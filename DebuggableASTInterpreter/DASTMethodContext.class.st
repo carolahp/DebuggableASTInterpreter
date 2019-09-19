@@ -7,6 +7,16 @@ Class {
 	#category : #'DebuggableASTInterpreter-Contexts'
 }
 
+{ #category : #'accessing - private' }
+DASTMethodContext >> allInstVars [ 
+	^ receiver allInstanceVariables
+]
+
+{ #category : #'accessing - private' }
+DASTMethodContext >> allTemps [
+	^ self variablesDict associations
+]
+
 { #category : #highlighting }
 DASTMethodContext >> highlightInterval [
 	^ self currentNode debugHighlightRange

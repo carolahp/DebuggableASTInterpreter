@@ -7,6 +7,19 @@ Class {
 	#category : #'DebuggableASTInterpreter-Contexts'
 }
 
+{ #category : #'accessing - private' }
+DASTBlockContext >> allInstVars [ 
+	^ closure outerContext allInstVars ,
+	  sender allInstVars
+]
+
+{ #category : #'accessing - private' }
+DASTBlockContext >> allTemps [
+	^ self variablesDict associations ,
+	  closure outerContext allTemps , 
+	  sender allTemps 
+]
+
 { #category : #initialization }
 DASTBlockContext >> contextTag [
 	^ closure outerContext
