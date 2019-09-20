@@ -25,6 +25,11 @@ DASTContextRootSmalltalk >> assignVariable: name value: value [
 	^ false
 ]
 
+{ #category : #'gt-extension' }
+DASTContextRootSmalltalk >> code [
+	^ ''
+]
+
 { #category : #'API-lookup' }
 DASTContextRootSmalltalk >> findLocalVariable: aName [
 	^ nil

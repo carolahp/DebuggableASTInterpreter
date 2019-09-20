@@ -95,6 +95,21 @@ DASTContext >> canExecute [
 	^ self nodes isNotEmpty and: [ self unhandledException isNil ]
 ]
 
+{ #category : #'gt-extension' }
+DASTContext >> code [
+	^ self methodOrBlock sourceCodeWithClassAndSelector
+]
+
+{ #category : #'gt-extension' }
+DASTContext >> codeHighlightRange [
+	| nodeHighlight |
+	self nodes ifEmpty: [ ^ 1 to: 1 ].
+	nodeHighlight := self isCurrentContext 
+		ifTrue: [ (self nodes top ifNil: [ self nodes first ] ifNotNil: [ self nodes top] ) ]
+		ifFalse: [ (self currentNode ifNil: [ self nodes first ] ifNotNil: [ self currentNode ] ) ] .
+	^ nodeHighlight debugHighlightRange + self methodOrBlock bodyOffset 
+]
+
 { #category : #'closure support' }
 DASTContext >> contextTag [
 	^ self
@@ -296,18 +311,17 @@ DASTContext >> gtInspectorSendersIn: composite [
 { #category : #'gt-extension' }
 DASTContext >> gtInspectorSourceIn: composite [
 	<gtInspectorPresentationOrder: 0> 
-	| nodeHighlight |
+	| highlightRange |
 	self nodes 
 		ifEmpty: [ ^ composite text
 						title: 'Source Code';
 						display: [ 'No method assigned to context yet'	 ] ].
 	
-	nodeHighlight := self isCurrentContext 
-		ifTrue: [ (self nodes top ifNil: [ self nodes first ] ifNotNil: [ self nodes top] ) ]
-		ifFalse: [ (self currentNode ifNil: [ self nodes first ] ifNotNil: [ self currentNode ] ) ] .
+	highlightRange := self codeHighlightRange.
+	
 	(self methodOrBlock 
 		gtInspectorIn: composite 
-		highlightInterval: (Interval from: nodeHighlight debugHighlightStart to: nodeHighlight debugHighlightStop))
+		highlightInterval: (Interval from: highlightRange first to: highlightRange last))
 ]
 
 { #category : #'gt-extension' }

@@ -38,7 +38,7 @@ DASTMethod >> gtInspectorIn: composite highlightInterval: anInterval [
 		title: 'Source with Interval';
 		display: [ self sourceCodeWithClassAndSelector	 ];
 		initialize: [ :presentation | 
-			presentation selectionInterval: (anInterval collect: [:each | each + self bodyOffset])];
+			presentation selectionInterval: anInterval];
 		when: [ true ]
 ]
 
