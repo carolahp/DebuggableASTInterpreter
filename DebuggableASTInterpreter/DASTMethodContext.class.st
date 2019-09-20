@@ -9,7 +9,7 @@ Class {
 
 { #category : #'accessing - private' }
 DASTMethodContext >> allInstVars [ 
-	^ receiver allInstVarNames collectWithIndex: [ :name :i | name -> (receiver instVarAt: i) ]
+	^ receiver allInstVars 
 ]
 
 { #category : #'accessing - private' }
