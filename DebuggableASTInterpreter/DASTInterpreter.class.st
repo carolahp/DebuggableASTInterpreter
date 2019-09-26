@@ -133,7 +133,7 @@ self halt.
 	currentContext := DASTMethodContext new
 		receiver: self evaluator nilObject;
 		parent: rootContext;
-		methodOrBlock: (DASTMethod new initializeWith: nodes last methodNode);
+		methodOrBlock: (DASTMethod new initializeWith: nodes last methodNode evaluator: self evaluator);
 		nodes: nodes;
 		sender: rootContext;
 		temps: aCollection;
@@ -183,7 +183,7 @@ DASTInterpreter >> initializeWithProgram: aRBNode withTemps: aCollection astCach
 	currentContext := DASTMethodContext new
 		receiver: self evaluator nilObject;
 		parent: rootContext;
-		methodOrBlock: (DASTMethod new initializeWith: nodes last methodNode);
+		methodOrBlock: (DASTMethod new initializeWith: nodes last methodNode evaluator: self evaluator);
 		nodes: nodes;
 		sender: rootContext;
 		temps: aCollection;

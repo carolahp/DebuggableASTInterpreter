@@ -46,7 +46,7 @@ DASTMethodContext >> initializeContext [
 	
 	aClass := self getClassForLookup.
 	compiledMethod := self lookupSelector: aSelector startInClass: aClass.
-	ast := DASTMethod new initializeWith: compiledMethod ast. 
+	ast := DASTMethod new initializeWith: compiledMethod ast evaluator: self evaluator. 
 	visitor := DASTPostOrderTreeVisitor new.
 	ast body acceptVisitor: visitor.
 	flatNodes := visitor stack.

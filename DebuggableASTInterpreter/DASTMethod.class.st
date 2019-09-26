@@ -2,7 +2,8 @@ Class {
 	#name : #DASTMethod,
 	#superclass : #DASTClosure,
 	#instVars : [
-		'evaluatePrimitive'
+		'evaluatePrimitive',
+		'evaluator'
 	],
 	#category : #'DebuggableASTInterpreter-Closures'
 }
@@ -44,6 +45,14 @@ DASTMethod >> gtInspectorIn: composite highlightInterval: anInterval [
 
 { #category : #accessing }
 DASTMethod >> initializeWith: aRBNode [ 
+	self deprecated: 'use initializeWith:evaluator:'.
+	self assert: aRBNode isBlock not.
+	super initializeWith:  aRBNode 
+]
+
+{ #category : #accessing }
+DASTMethod >> initializeWith: aRBNode evaluator: anEvaluator [
+	evaluator := anEvaluator.
 	self assert: aRBNode isBlock not.
 	super initializeWith:  aRBNode 
 ]
@@ -71,7 +80,7 @@ DASTMethod >> isNamedPrimitive [
 
 { #category : #testing }
 DASTMethod >> isNoMethod [
-	^(self methodClass = UndefinedObject) and: [ self selector = #noMethod ]
+	^ self selector = #noMethod
 ]
 
 { #category : #accessing }
@@ -86,7 +95,10 @@ DASTMethod >> isPrimitive [
 
 { #category : #accessing }
 DASTMethod >> methodClass [
-	^ [nodeAST methodClass] on: Exception do: [ nil class ]
+	^ [ nodeAST methodClass ] on: Exception do: [ 
+			self isNoMethod 
+				ifTrue: [ ^ evaluator classOf: evaluator nilObject]
+				ifFalse: [ :e | e defaultAction ] ]
 ]
 
 { #category : #accessing }
