@@ -24,6 +24,11 @@ DASTBlock >> basicClass [
 	^ self class
 ]
 
+{ #category : #'source code' }
+DASTBlock >> bodyOffset [
+	^ self outerContext methodOrBlock bodyOffset
+]
+
 { #category : #accessing }
 DASTBlock >> ensure: aBlock [
 	"Evaluate a termination block after evaluating the receiver, regardless of
@@ -136,6 +141,11 @@ DASTBlock >> selector [
 DASTBlock >> sourceCodeInMethod [
 	^ self nodeAST source asString
 	
+]
+
+{ #category : #'source code' }
+DASTBlock >> sourceCodeWithClassAndSelector [
+	^ self outerContext methodOrBlock sourceCodeWithClassAndSelector
 ]
 
 { #category : #accessing }

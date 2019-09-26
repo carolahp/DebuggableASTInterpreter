@@ -96,18 +96,13 @@ DASTContext >> canExecute [
 ]
 
 { #category : #'gt-extension' }
-DASTContext >> code [
-	^ self methodOrBlock sourceCode
-]
-
-{ #category : #'gt-extension' }
 DASTContext >> codeHighlightRange [
 	| nodeHighlight |
 	self nodes ifEmpty: [ ^ 1 to: 1 ].
 	nodeHighlight := self isCurrentContext 
 		ifTrue: [ (self nodes top ifNil: [ self nodes first ] ifNotNil: [ self nodes top] ) ]
 		ifFalse: [ (self currentNode ifNil: [ self nodes first ] ifNotNil: [ self currentNode ] ) ] .
-	^ nodeHighlight debugHighlightRange" + self methodOrBlock bodyOffset "
+	^ nodeHighlight debugHighlightRange + self methodOrBlock bodyOffset 
 ]
 
 { #category : #'closure support' }
@@ -324,7 +319,7 @@ DASTContext >> gtInspectorSourceIn: composite [
 	
 	(self methodOrBlock 
 		gtInspectorIn: composite 
-		highlightInterval: (Interval from: highlightRange first to: highlightRange last))
+		highlightInterval: highlightRange)
 ]
 
 { #category : #'gt-extension' }
@@ -630,6 +625,11 @@ DASTContext >> setTemporalVariablesNamed: names values: values [
 				self 
 					at: (names at: index)
 					 put: val ].
+]
+
+{ #category : #'gt-extension' }
+DASTContext >> sourceCode [
+	^ self methodOrBlock sourceCodeWithClassAndSelector 
 ]
 
 { #category : #'accessing - private' }

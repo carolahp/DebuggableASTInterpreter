@@ -118,11 +118,11 @@ DASTMethod >> selector [
 
 { #category : #'gt-inspector-extension' }
 DASTMethod >> selectorFormatted [
-	^ "'(' , self methodClass asString , ')>>',"
-		(self isNoMethod ifTrue: [ self selector, Character lf ] ifFalse: [ '' ])
+	^ (self isNoMethod ifTrue: [ self selector, Character lf ] ifFalse: [ '' ]) "'(' , self methodClass asString , ')>>',"
+		
 ]
 
 { #category : #'gt-inspector-extension' }
 DASTMethod >> sourceCodeWithClassAndSelector [
-	^ self selectorFormatted , self sourceCode asString "sourceCode will contain the selector of the method at the beginning except for the root method noMethod"
+	^ self selectorFormatted , self sourceCode asString "sourceCode will contain the selector of the method at the beginning"
 ]
