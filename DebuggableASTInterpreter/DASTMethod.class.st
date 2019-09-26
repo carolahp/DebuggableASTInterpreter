@@ -106,7 +106,7 @@ DASTMethod >> selector [
 
 { #category : #'gt-inspector-extension' }
 DASTMethod >> selectorFormatted [
-	^ '(' , self methodClass asString , ')>>',
+	^ "'(' , self methodClass asString , ')>>',"
 		(self isNoMethod ifTrue: [ self selector, Character lf ] ifFalse: [ '' ])
 ]
 

@@ -97,7 +97,7 @@ DASTContext >> canExecute [
 
 { #category : #'gt-extension' }
 DASTContext >> code [
-	^ self methodOrBlock sourceCodeWithClassAndSelector
+	^ self methodOrBlock sourceCode
 ]
 
 { #category : #'gt-extension' }
@@ -107,7 +107,7 @@ DASTContext >> codeHighlightRange [
 	nodeHighlight := self isCurrentContext 
 		ifTrue: [ (self nodes top ifNil: [ self nodes first ] ifNotNil: [ self nodes top] ) ]
 		ifFalse: [ (self currentNode ifNil: [ self nodes first ] ifNotNil: [ self currentNode ] ) ] .
-	^ nodeHighlight debugHighlightRange + self methodOrBlock bodyOffset 
+	^ nodeHighlight debugHighlightRange" + self methodOrBlock bodyOffset "
 ]
 
 { #category : #'closure support' }
@@ -465,6 +465,11 @@ DASTContext >> lookupSelector: aByteString startInClass: aClass [
 { #category : #accessing }
 DASTContext >> messageNode: aRBMessageNode [ 
 	messageNode := aRBMessageNode
+]
+
+{ #category : #accessing }
+DASTContext >> methodClass [
+	^ self methodOrBlock methodClass
 ]
 
 { #category : #accessing }

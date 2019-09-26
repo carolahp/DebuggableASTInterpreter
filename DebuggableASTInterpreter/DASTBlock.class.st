@@ -134,7 +134,7 @@ DASTBlock >> selector [
 
 { #category : #'gt-extension' }
 DASTBlock >> sourceCodeInMethod [
-	^ '(', self methodClass asString , ')>>', self nodeAST source asString
+	^ self nodeAST source asString
 	
 ]
 

@@ -81,6 +81,11 @@ DASTMethodContext >> isBlockContext [
 	^ false
 ]
 
+{ #category : #testing }
+DASTMethodContext >> isEPDASTBlockMirror [
+	^ false
+]
+
 { #category : #initialization }
 DASTMethodContext >> isUnwindContext [
 	"is this context for  method that is marked?"

@@ -75,7 +75,7 @@ DASTEvaluator >> findClassVariable: aString inObject: anObject [
 { #category : #'variables-class' }
 DASTEvaluator >> findClassVariable: aName inObjectAndItsParents: anObject [
 	| mobjclass hobjclass hobjparent |
-	self halt.
+	
 	mobjclass := anObject isClassMirror
 		ifTrue: [ anObject asClassMirror ]
 		ifFalse: [ anObject basicClass ].

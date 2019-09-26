@@ -14,7 +14,7 @@ Class {
 	#category : #'DebuggableASTInterpreter-Core'
 }
 
-{ #category : #accessor }
+{ #category : #accessing }
 DASTInterpreter >> astCache: aCollection [ 
 	astCache := aCollection
 ]
@@ -24,12 +24,17 @@ DASTInterpreter >> context [
 	self shouldBeImplemented.
 ]
 
-{ #category : #accessors }
+{ #category : #accessing }
+DASTInterpreter >> contextsStack [
+	^ {self currentContext} asOrderedCollection , self currentContext senders
+]
+
+{ #category : #accessing }
 DASTInterpreter >> currentContext [
 	^ currentContext.
 ]
 
-{ #category : #accessors }
+{ #category : #accessing }
 DASTInterpreter >> currentNode [
 	^ currentContext nodes top
 ]
@@ -56,7 +61,7 @@ DASTInterpreter >> evaluateAST: aRBNode [
 	^ self evaluateAST: aRBNode withTemps: #() 
 ]
 
-{ #category : #evaluating }
+{ #category : #evaluation }
 DASTInterpreter >> evaluateAST: aRBNode withTemps: aCollection [ 
 
 	self initializeWithProgram: aRBNode withTemps: aCollection astCache: astCache.
@@ -68,13 +73,22 @@ DASTInterpreter >> evaluator [
 	^ evaluator ifNil: [ evaluator := DASTSystemEnvironment new interpreter: self; yourself ]
 ]
 
+{ #category : #compiling }
+DASTInterpreter >> flattenedNodesFrom: aRBNode [ 
+	| visitor |
+	visitor := DASTPostOrderTreeVisitor new.
+	(aRBNode methodNode body addReturn; yourself) acceptVisitor: visitor.
+	^ visitor stack.
+	
+]
+
 { #category : #'gt-extension' }
 DASTInterpreter >> gtInspectorContextsIn: composite [
 	<gtInspectorPresentationOrder: 1>
 	self currentContext ifNil: [ ^ composite ].
 	^composite fastList
 		title: 'Evaluation Stack';
-		display: [ {self currentContext} asOrderedCollection , self currentContext senders ]
+		display: [ self contextsStack ]
 ]
 
 { #category : #'gt-extension' }
@@ -99,20 +113,12 @@ DASTInterpreter >> increasePC [
 ]
 
 { #category : #initialization }
-DASTInterpreter >> initializeWithEvaluator: anEPASTEvaluator [ 
-	evaluator := anEPASTEvaluator
-]
+DASTInterpreter >> initializeWithContext: aDASTContext [
+	"initialize the interpreter to resume the execution from the context got as argument"
 
-{ #category : #initialization }
-DASTInterpreter >> initializeWithProgram: aRBNode [
-	^self initializeWithProgram: aRBNode withTemps: #() astCache: astCache
-	
-]
-
-{ #category : #evaluating }
-DASTInterpreter >> initializeWithProgram: aRBNode withTemps: aCollection astCache: anIdentityDictionary [
-	| visitor nodes rootContext |
-	astCache := anIdentityDictionary. 
+	| visitor nodes rootContext  aRBNode aCollection|
+self halt.
+	astCache := IdentityDictionary new. 
 	programCounter := 0.
 	visitor := DASTPostOrderTreeVisitor new.
 	
@@ -123,6 +129,56 @@ DASTInterpreter >> initializeWithProgram: aRBNode withTemps: aCollection astCach
 		yourself.
 	"ugly method necessary because we are putting the root expression of the AST inside a return and sending it the message value"
 	self flag: 'update next call'.
+	" Set the first method (noMethod) context evaluation. The receiver is nil "
+	currentContext := DASTMethodContext new
+		receiver: self evaluator nilObject;
+		parent: rootContext;
+		methodOrBlock: (DASTMethod new initializeWith: nodes last methodNode);
+		nodes: nodes;
+		sender: rootContext;
+		temps: aCollection;
+		evaluator: self evaluator;
+		yourself.
+	
+]
+
+{ #category : #initialization }
+DASTInterpreter >> initializeWithEvaluator: anEPASTEvaluator [ 
+	evaluator := anEPASTEvaluator
+]
+
+{ #category : #initialization }
+DASTInterpreter >> initializeWithProgram: aRBNode [
+	^self initializeWithProgram: aRBNode withTemps: #() astCache: astCache
+	
+]
+
+{ #category : #initialization }
+DASTInterpreter >> initializeWithProgram: aRBNode inContext: aDASTContext [ 
+	| visitor nodes rootContext  aCollection |
+	astCache := aDASTContext evaluator astCache. 
+	self flag: 'how can I handle program counter?'.
+	programCounter := 0 .
+	nodes := self flattenedNodesFrom: aRBNode.
+	
+	" Set the first method (noMethod) context evaluation. The receiver is nil "
+	currentContext := aDASTContext nodes: nodes; 
+		stack: DASTStack new;  
+		methodOrBlock: aDASTContext methodOrBlock;
+		yourself
+]
+
+{ #category : #initialization }
+DASTInterpreter >> initializeWithProgram: aRBNode withTemps: aCollection astCache: anIdentityDictionary [
+	| nodes rootContext |
+	astCache := anIdentityDictionary. 
+	programCounter := 0.
+	nodes := self flattenedNodesFrom: aRBNode.
+	
+	rootContext := DASTContextRootSmalltalk new 
+		evaluator: self evaluator;
+		yourself.
+	
 	" Set the first method (noMethod) context evaluation. The receiver is nil "
 	currentContext := DASTMethodContext new
 		receiver: self evaluator nilObject;

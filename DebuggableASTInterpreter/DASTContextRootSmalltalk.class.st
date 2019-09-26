@@ -63,6 +63,11 @@ DASTContextRootSmalltalk >> isUnwindContext [
 	^ self shouldNotImplement 
 ]
 
+{ #category : #accessing }
+DASTContextRootSmalltalk >> methodClass [
+	^ nil
+]
+
 { #category : #'as yet unclassified' }
 DASTContextRootSmalltalk >> temps: aCollection [ 
 	self shouldBeImplemented.
