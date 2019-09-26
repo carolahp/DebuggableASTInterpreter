@@ -209,7 +209,10 @@ DASTContext >> findGlobalVariable: aByteSymbol [
 
 { #category : #'API-lookup' }
 DASTContext >> findInstanceVariable: aName [
-	^ self evaluator findInstanceVariable: aName inObject: self receiver
+	| val |
+	val := self evaluator findInstanceVariable: aName inObject: self receiver.
+	val ifNil: [ ^ nil ].
+	^ aName -> val
 ]
 
 { #category : #'API-lookup' }
