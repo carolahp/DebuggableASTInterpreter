@@ -112,7 +112,7 @@ DASTContext >> contextTag [
 
 { #category : #accessing }
 DASTContext >> currentNode [
-	^ currentNode
+	^ currentNode ifNil: [ currentNode := self nodes pop ]
 ]
 
 { #category : #accessing }
@@ -390,6 +390,9 @@ DASTContext >> hasSender: context [
 DASTContext >> initialize [
 	super initialize.
 	stack := DASTStack new.
+	executedNodes := DASTStack new.
+	nodes := DASTStack new.
+	currentNode := nil.
 	variablesDict := Dictionary new.
 	tempVarsNamesIndexes := Dictionary new.
 	tempVarIndex := 0
@@ -458,6 +461,11 @@ DASTContext >> lookupSelector: aByteString startInClass: aClass [
 					self error: 'The class ',lclass asString,' does not understand the message: ', aByteString asString ].
 	
 
+]
+
+{ #category : #accessing }
+DASTContext >> messageNode [
+	^ messageNode
 ]
 
 { #category : #accessing }

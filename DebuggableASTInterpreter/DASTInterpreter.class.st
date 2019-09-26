@@ -213,6 +213,26 @@ DASTInterpreter >> receiver [
 	^self currentContext receiver
 ]
 
+{ #category : #evaluation }
+DASTInterpreter >> restart: aDASTContext [
+	| newContext temps nargs |
+	
+	newContext := 
+		DASTContext
+			newWithSender: aDASTContext sender 
+			receiver: aDASTContext receiver 
+			messageNode: aDASTContext messageNode
+			evaluator: aDASTContext evaluator.
+	nargs := aDASTContext messageNode arguments.
+	temps := aDASTContext allTemps.
+	nargs doWithIndex: [ :arg :i | | temp |
+		temp := temps at: i.
+		newContext at: temp name put: temp value
+	].
+	
+	currentContext := newContext
+]
+
 { #category : #private }
 DASTInterpreter >> solvePrimitive: aMethod receiver: anObject arguments: anArray [
 	| primitiveResult anInteger |
