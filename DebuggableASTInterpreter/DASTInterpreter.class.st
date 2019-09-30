@@ -73,15 +73,6 @@ DASTInterpreter >> evaluator [
 	^ evaluator ifNil: [ evaluator := DASTSystemEnvironment new interpreter: self; yourself ]
 ]
 
-{ #category : #compiling }
-DASTInterpreter >> flattenedNodesFrom: aRBNode [ 
-	| visitor |
-	visitor := DASTPostOrderTreeVisitor new.
-	(aRBNode methodNode body addReturn; yourself) acceptVisitor: visitor.
-	^ visitor stack.
-	
-]
-
 { #category : #'gt-extension' }
 DASTInterpreter >> gtInspectorContextsIn: composite [
 	<gtInspectorPresentationOrder: 1>
@@ -170,26 +161,11 @@ DASTInterpreter >> initializeWithProgram: aRBNode inContext: aDASTContext [
 
 { #category : #initialization }
 DASTInterpreter >> initializeWithProgram: aRBNode withTemps: aCollection astCache: anIdentityDictionary [
-	| nodes rootContext |
+	
 	astCache := anIdentityDictionary. 
 	programCounter := 0.
-	nodes := self flattenedNodesFrom: aRBNode.
-	
-	rootContext := DASTContextRootSmalltalk new 
-		evaluator: self evaluator;
-		yourself.
-	
-	" Set the first method (noMethod) context evaluation. The receiver is nil "
-	currentContext := DASTMethodContext new
-		receiver: self evaluator nilObject;
-		parent: rootContext;
-		methodOrBlock: (DASTMethod new initializeWith: nodes last methodNode evaluator: self evaluator);
-		nodes: nodes;
-		sender: rootContext;
-		temps: aCollection;
-		evaluator: self evaluator;
-		yourself.
-	
+	currentContext := DASTContext newNoMethodContextWithProgram: aRBNode temps: aCollection evaluator: self evaluator
+
 ]
 
 { #category : #testing }
