@@ -353,6 +353,8 @@ DASTContext >> gtInspectorVarsIn: composite [
 	^ (composite fastTable)
 		title: 'Variables';
 		display: [ 
+			{{ 'ctx' . 'receiver' . self receiver }}, 
+			{{ 'ctx' . 'sender'   . self sender   }}, 
 			(self allTemps    collect: [ :each | { 'temporal' . each key . each value } ]) , 
 			(self allInstVars collect: [ :each | { 'instance' . each key . each value } ]) ];
 		"children: [ :each | 
