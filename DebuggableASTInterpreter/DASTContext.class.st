@@ -77,6 +77,12 @@ DASTContext >> allInstVars [
 	self subclassResponsibility 
 ]
 
+{ #category : #'accessing variables' }
+DASTContext >> allInternVars [
+	^ {('receiver' -> self receiver) . 
+	   ('sender'   -> self sender) }
+]
+
 { #category : #'accessing - private' }
 DASTContext >> allTemps [
 	self subclassResponsibility 
@@ -353,10 +359,9 @@ DASTContext >> gtInspectorVarsIn: composite [
 	^ (composite fastTable)
 		title: 'Variables';
 		display: [ 
-			{{ 'ctx' . 'receiver' . self receiver }}, 
-			{{ 'ctx' . 'sender'   . self sender   }}, 
-			(self allTemps    collect: [ :each | { 'temporal' . each key . each value } ]) , 
-			(self allInstVars collect: [ :each | { 'instance' . each key . each value } ]) ];
+			(self allInternVars collect: [ :each | { 'ctx'      . each key . each value } ]) , 
+	  		(self allTemps      collect: [ :each | { 'temporal' . each key . each value } ]) , 
+	  		(self allInstVars   collect: [ :each | { 'instance' . each key . each value } ]) ];
 		"children: [ :each | 
 			(each value isDictionary) 
 				ifTrue: [ each value associations ] 
@@ -372,14 +377,14 @@ DASTContext >> gtInspectorVarsIn: composite [
 		"column: 'Origin Context' 
 			evaluated: [:each | GTObjectPrinter asTruncatedTextFrom: (each at: 2) ];
 		"
-		selectionAct: [ :table |
+		"selectionAct: [ :table |
 			table rawSelection do: [ :assoc | self removeKey: assoc key ].
 			table update ]
 			entitled: 'Remove item(s)';
 		selectionPopulate: #selection 
 			entitled: 'Open key'
 			with: [ :table | (table rawSelection collect: #key) gtInspectorInterestingObject ];
-		beMultiple;
+		beMultiple;"
 		send: [ :selection | 
 			selection isNil 
 			ifTrue:[nil]

@@ -52,8 +52,8 @@ DASTEvaluator >> evaluateAST: ast [
 
 { #category : #interpreting }
 DASTEvaluator >> evaluateCode: someCode withTemps: aCollectionOfTemps [
-	self flag: 'move the parser to a method that compiles it'.
-	^self evaluateAST: (RBParser parseExpression: someCode) withTemps: aCollectionOfTemps 
+	
+	^self evaluateAST: (self parse: someCode) withTemps: aCollectionOfTemps 
 ]
 
 { #category : #primitives }
@@ -149,6 +149,18 @@ DASTEvaluator >> newInterpreter [
 { #category : #accessing }
 DASTEvaluator >> nilObject [
 	^ objectSpace backend nilObject
+]
+
+{ #category : #parsing }
+DASTEvaluator >> parse: aString [
+	| expression |
+	
+	expression := RBParser parseExpression: aString.
+	(expression isSequence and: [ environment classLoader isClassDefinition: aString ])
+		ifTrue: [ expression := EPASTClassDefinition fromMessageNode: expression ].
+	(expression isMessage and: [ self isTraitDefinitionSelector: expression selector ])
+		ifTrue: [ expression := EPASTTraitDefinition fromMessageNode: expression ].
+	^ expression
 ]
 
 { #category : #testing }
