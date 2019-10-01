@@ -192,7 +192,6 @@ DASTInterpreter >> receiver [
 { #category : #evaluation }
 DASTInterpreter >> restart: aDASTContext [
 	| newContext temps nargs |
-	
 	newContext := 
 		DASTContext
 			newWithSender: aDASTContext sender 
@@ -200,7 +199,7 @@ DASTInterpreter >> restart: aDASTContext [
 			messageNode: aDASTContext messageNode
 			evaluator: aDASTContext evaluator.
 	nargs := aDASTContext messageNode arguments.
-	temps := aDASTContext allTemps.
+	temps := aDASTContext allTemps reverse.
 	nargs doWithIndex: [ :arg :i | | temp |
 		temp := temps at: i.
 		newContext at: temp name put: temp value
