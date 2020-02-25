@@ -56,15 +56,6 @@ DASTInterpreter >> evaluate [
 	^ self stackTop
 ]
 
-{ #category : #'gt-extension' }
-DASTInterpreter >> gtInspectorContextsIn: composite [
-	<gtInspectorPresentationOrder: 1>
-	self currentContext ifNil: [ ^ composite ].
-	^composite fastList
-		title: 'Evaluation Stack';
-		display: [ {self currentContext} asOrderedCollection , self currentContext senders ]
-]
-
 { #category : #evaluation }
 DASTInterpreter >> evaluateAST: aRBNode [ 
 	^ self evaluateAST: aRBNode withTemps: #() 
@@ -88,7 +79,7 @@ DASTInterpreter >> gtInspectorContextsIn: composite [
 	self currentContext ifNil: [ ^ composite ].
 	^composite fastList
 		title: 'Evaluation Stack';
-		display: [ self contextsStack ]
+		display: [ {self currentContext} asOrderedCollection , self currentContext senders ]
 ]
 
 { #category : #'gt-extension' }
@@ -381,12 +372,6 @@ DASTInterpreter >> visitLiteralNode: aRBLiteralValueNode [
 { #category : #visiting }
 DASTInterpreter >> visitLiteralValueNode: aRBLiteralValueNode [ 
 	self visitLiteralNode: aRBLiteralValueNode
-]
-
-{ #category : #visiting }
-DASTInterpreter >> visitLiteralValueNode: aRBLiteralValueNode [ 
-
-	self visitLiteralNode: aRBLiteralValueNode 
 ]
 
 { #category : #visiting }

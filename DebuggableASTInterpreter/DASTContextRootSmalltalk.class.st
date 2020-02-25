@@ -42,12 +42,6 @@ DASTContextRootSmalltalk >> gtInspectorSourceIn: composite [
 	''
 ]
 
-{ #category : #'gt-extension' }
-DASTContextRootSmalltalk >> gtInspectorSourceIn: composite [
-	<gtInspectorPresentationOrder: 30> 
-	''
-]
-
 { #category : #accessing }
 DASTContextRootSmalltalk >> isBlockContext [
 	^false

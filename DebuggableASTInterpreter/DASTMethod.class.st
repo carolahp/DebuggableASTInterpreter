@@ -74,11 +74,6 @@ DASTMethod >> isMessageValue [
 		and: [ (201 to: 206) includes: self primitive ]
 ]
 
-{ #category : #testing }
-DASTMethod >> isNoMethod [
-	^ (self methodClass = UndefinedObject) and: [ self selector = #noMethod ]
-]
-
 { #category : #accessing }
 DASTMethod >> isNamedPrimitive [
 	^ self primitive = 117
@@ -86,7 +81,7 @@ DASTMethod >> isNamedPrimitive [
 
 { #category : #testing }
 DASTMethod >> isNoMethod [
-	^ self selector = #noMethod
+	^ self selector = #noMethod 
 ]
 
 { #category : #accessing }
