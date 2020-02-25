@@ -9,7 +9,9 @@ Class {
 
 { #category : #'accessing - private' }
 DASTMethodContext >> allInstVars [ 
-	^ receiver allInstVars 
+	^ (self evaluator nilObject = receiver) 
+		ifTrue: [ #() ] 
+		ifFalse: [ receiver allInstVars ] 
 ]
 
 { #category : #'accessing - private' }
