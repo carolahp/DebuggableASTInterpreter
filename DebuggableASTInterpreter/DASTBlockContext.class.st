@@ -7,9 +7,34 @@ Class {
 	#category : #'DebuggableASTInterpreter-Contexts'
 }
 
+{ #category : #'accessing - private' }
+DASTBlockContext >> allInstVars [ 
+	^ closure outerContext allInstVars ,
+	  sender allInstVars
+]
+
+{ #category : #'accessing - private' }
+DASTBlockContext >> allTemps [
+	^ self variablesDict associations ,
+	  closure outerContext allTemps , 
+	  sender allTemps 
+]
+
 { #category : #initialization }
 DASTBlockContext >> contextTag [
 	^ closure outerContext
+]
+
+{ #category : #'API-lookup' }
+DASTBlockContext >> findLocalVariable: aName [
+	^ variablesDict 
+		associationAt: aName 
+		ifAbsent: [ 
+			(closure outerContext findLocalVariable: aName) ifNil: [ 
+				(self sender findLocalVariable: aName) ifNil: [ ^ nil ]
+			]
+		].
+		
 ]
 
 { #category : #initialization }
@@ -26,7 +51,7 @@ DASTBlockContext >> initializeContext [
 	visitor := DASTPostOrderTreeVisitor new.
 	receiver body acceptVisitor: visitor.
 	nodes := visitor stack.
-	
+	currentNode := nodes top.
 	self 	methodOrBlock: receiver;
 			nodes: nodes.
 	

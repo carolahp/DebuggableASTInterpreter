@@ -81,6 +81,11 @@ DASTClosure >> nodeAST [
 ]
 
 { #category : #accessing }
+DASTClosure >> nodeAST: aRBNode [ 
+	nodeAST := aRBNode
+]
+
+{ #category : #accessing }
 DASTClosure >> primitive [
 	self subclassResponsibility 
 ]

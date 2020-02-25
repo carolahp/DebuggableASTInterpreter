@@ -10,6 +10,7 @@ Class {
 		'receiver',
 		'nodes',
 		'executedNodes',
+		'currentNode',
 		'stack',
 		'parent',
 		'closure',
@@ -18,7 +19,7 @@ Class {
 		'tempVarIndex',
 		'tempVarsNamesIndexes',
 		'unhandledException',
-		'currentNode'
+		'evaluator'
 	],
 	#classVars : [
 		'valueToBlockMessages'
@@ -26,17 +27,42 @@ Class {
 	#category : #'DebuggableASTInterpreter-Contexts'
 }
 
-{ #category : #'instance creation' }
-DASTContext class >> newWithSender: aDASTContext receiver: aReceiver messageNode: aRBMessageNode [ 
+{ #category : #instantiation }
+DASTContext class >> newNoMethodContextWithProgram: aRBNode temps: aCollection evaluator: anEvaluator [
+	"special context for the first call"
+	| nodes rootContext noMethod |
+	
+	nodes := DASTPostOrderTreeVisitor new flattenedNodesFrom: aRBNode.
+	
+	rootContext := DASTContextRootSmalltalk new 
+		evaluator: anEvaluator;
+		yourself.
+	
+	noMethod := (DASTMethod new initializeWith: nodes last methodNode evaluator: anEvaluator).
+	" Set the first method (noMethod) context evaluation. The receiver is nil "
+	^ DASTMethodContext new
+		receiver: anEvaluator nilObject;
+		parent: rootContext;
+		methodOrBlock: noMethod;
+		nodes: nodes;
+		sender: rootContext;
+		temps: aCollection;
+		evaluator: anEvaluator;
+		yourself.
+]
+
+{ #category : #instantiation }
+DASTContext class >> newWithSender: aDASTContext receiver: aReceiver messageNode: aRBMessageNode evaluator: aDASTEvaluator [ 
 	| context |
-	context := ((aReceiver isKindOf: DASTBlock) 
+	context := ((aDASTEvaluator isEPDASTBlockMirror: aReceiver ) 
 					and: [ " Check if the message is one of the variants of value. This is very ugly and must be changed when implementing environments "
 						self valueToBlockMessages keys includes: aRBMessageNode selector ])
 		ifTrue: [ DASTBlockContext new ]
 		ifFalse: [ DASTMethodContext new ].
 	context sender: aDASTContext;
 		receiver: aReceiver;
-		messageNode: aRBMessageNode.
+		messageNode: aRBMessageNode;
+		evaluator: aDASTEvaluator.
 	^ context initializeContext
 ]
 
@@ -44,6 +70,46 @@ DASTContext class >> newWithSender: aDASTContext receiver: aReceiver messageNode
 DASTContext class >> valueToBlockMessages [
 	^ valueToBlockMessages 
 		ifNil: [ valueToBlockMessages := (BlockClosure methodDict select: [ :e | (201 to: 206) includes: e primitive ]) collect: [ :e | e selector ] ]
+]
+
+{ #category : #'accessing variables' }
+DASTContext >> allInstVars [
+	self subclassResponsibility 
+]
+
+{ #category : #'accessing variables' }
+DASTContext >> allInternVars [
+	^ {('receiver' -> self receiver) . 
+	   ('sender'   -> self sender) }
+]
+
+{ #category : #'accessing - private' }
+DASTContext >> allTemps [
+	self subclassResponsibility 
+]
+
+{ #category : #'API-lookup' }
+DASTContext >> assignVariable: name value: value [
+	"Temporary variables assignment"
+	(self lookupContextDefiningLocalVariable: name)
+		ifNotNil: [ :definingContext | definingContext at: name put: value. ^ self ].
+			
+   "Instance variables assignment"	
+	(self evaluator assignInstanceVariable: name inObject: self receiver value: value)
+		ifTrue: [ ^ value ].
+	
+	"Class variables assignment"	
+	(self evaluator assignClassVariable: name inObject: self receiver value: value)
+		ifTrue: [ ^ value ].
+	
+   " Global variables "
+	(self rootContext assignVariable: name value: value)
+	   ifTrue: [ ^ value ].
+	  Error signal: 'Assignment operation failed for variable "' , name , '" with value "', value asString, '"'.
+		
+	
+	
+	
 ]
 
 { #category : #'API-store' }
@@ -59,6 +125,16 @@ DASTContext >> canExecute [
 	^ self nodes isNotEmpty and: [ self unhandledException isNil ]
 ]
 
+{ #category : #'gt-extension' }
+DASTContext >> codeHighlightRange [
+	| nodeHighlight |
+	self nodes ifEmpty: [ ^ 1 to: 1 ].
+	nodeHighlight := self isCurrentContext 
+		ifTrue: [ (self nodes top ifNil: [ self nodes first ] ifNotNil: [ self nodes top] ) ]
+		ifFalse: [ (self currentNode ifNil: [ self nodes first ] ifNotNil: [ self currentNode ] ) ] .
+	^ nodeHighlight debugHighlightRange + self methodOrBlock bodyOffset 
+]
+
 { #category : #'closure support' }
 DASTContext >> contextTag [
 	^ self
@@ -66,12 +142,12 @@ DASTContext >> contextTag [
 
 { #category : #accessing }
 DASTContext >> currentNode [
-	^ currentNode
+	^ currentNode ifNil: [ currentNode := self nodes pop ]
 ]
 
 { #category : #accessing }
-DASTContext >> currentNode: aRBVariableNode [ 
-	currentNode := aRBVariableNode
+DASTContext >> currentNode: anObject [
+	currentNode := anObject
 ]
 
 { #category : #'accessing - private' }
@@ -90,6 +166,16 @@ DASTContext >> evaluateSignal: exception [
 	value := self exceptionHandlerBlock cull: exception.	
 	"return from self if not otherwise directed in handle block"
 	self return: value
+]
+
+{ #category : #accessing }
+DASTContext >> evaluator [
+	^ evaluator
+]
+
+{ #category : #'as yet unclassified' }
+DASTContext >> evaluator: aDASTEvaluator [ 
+	evaluator := aDASTEvaluator.
 ]
 
 { #category : #'accessing - private' }
@@ -123,9 +209,8 @@ DASTContext >> executedNodes [
 
 { #category : #'API-lookup' }
 DASTContext >> findClassVariable: aName [
-	^ receiver isClass 
-		ifTrue: [ receiver bindingOf: aName ]
-		ifFalse:[ receiver class bindingOf: aName ]
+	^ self evaluator findClassVariable: aName inObjectAndItsParents: self receiver
+	
 ]
 
 { #category : #query }
@@ -141,18 +226,23 @@ DASTContext >> findContextSuchThat: testBlock [
 	^ nil
 ]
 
+{ #category : #accessing }
+DASTContext >> findGlobalVariable: aByteSymbol [
+	
+	^ self evaluator findGlobalVariable: aByteSymbol
+]
+
 { #category : #'API-lookup' }
 DASTContext >> findInstanceVariable: aName [
-	[^ aName -> (self receiver instVarNamed: aName) ]
-		on: InstanceVariableNotFound do: [ ^nil ] 
+	| val |
+	val := self evaluator findInstanceVariable: aName inObject: self receiver.
+	val ifNil: [ ^ nil ].
+	^ aName -> val
 ]
 
 { #category : #'API-lookup' }
 DASTContext >> findLocalVariable: aName [
-
-	^ variablesDict 
-		associationAt: aName 
-		ifAbsent: [ nil ]
+	self subclassResponsibility 
 ]
 
 { #category : #'private-exceptions' }
@@ -204,24 +294,28 @@ DASTContext >> findNextUnwindContextUpTo: aContext [
 
 { #category : #'API-lookup' }
 DASTContext >> findVariable: aByteSymbol [
-	|association|
 	"Return the value of a variable. If this context redefines a variable defined by its parent context, this method will return the variable value for this context"
 	
 	"local variables"
-	association := self findLocalVariable: aByteSymbol.
-	association ifNotNil: [ ^ association value ].
+	(self findLocalVariable: aByteSymbol)
+		ifNotNil: [ :assoc | ^ assoc value ].
 	
 	"instance variables"
-	association := self findInstanceVariable: aByteSymbol.
-	association ifNotNil: [ ^ association value ].
+	(self findInstanceVariable: aByteSymbol) 
+		ifNotNil: [ :assoc |  ^ assoc value ].
 	
 	"class variables"
-	association := self findClassVariable: aByteSymbol.
-	association ifNotNil: [ ^ association value ].
+	(self findClassVariable: aByteSymbol)
+		ifNotNil: [ :assoc | ^ assoc value ].
 	
-	^ parent 
+	"global variables"
+	(self findGlobalVariable: aByteSymbol) 
+		ifNotNil: [ :assoc | ^ assoc value ].
+	
+	self error: 'Variable ', aByteSymbol , ' not defined!'
+	"^ parent 
 			ifNil: [ self error: 'Variable ', aByteSymbol , ' not defined!'  ] 
-			ifNotNil: [ :pc | pc findVariable: aByteSymbol ]
+			ifNotNil: [ :pc | pc findVariable: aByteSymbol ]"
 ]
 
 { #category : #'accessing - private' }
@@ -229,12 +323,12 @@ DASTContext >> getClassForLookup [
 
 	 ^ messageNode isSuperSend 
 			ifTrue: [messageNode methodNode methodClass superclass] 
-			ifFalse: [self receiver class]
+			ifFalse: [self evaluator classOf: receiver]
 ]
 
 { #category : #'gt-extension' }
 DASTContext >> gtInspectorSendersIn: composite [
-	<gtInspectorPresentationOrder: 4>
+	<gtInspectorPresentationOrder: 30>
 	^composite tree
 		rootsExpanded;
 		title: 'Senders';
@@ -245,11 +339,58 @@ DASTContext >> gtInspectorSendersIn: composite [
 { #category : #'gt-extension' }
 DASTContext >> gtInspectorSourceIn: composite [
 	<gtInspectorPresentationOrder: 0> 
-	| nodeHighlight |
-	nodeHighlight := self currentNode ifNil: [ self nodes first ] ifNotNil: [ self currentNode ].
+	| highlightRange |
+	self nodes 
+		ifEmpty: [ ^ composite text
+						title: 'Source Code';
+						display: [ 'No method assigned to context yet'	 ] ].
+	
+	highlightRange := self codeHighlightRange.
+	
 	(self methodOrBlock 
 		gtInspectorIn: composite 
-		highlightInterval: (Interval from: nodeHighlight debugHighlightStart to: nodeHighlight debugHighlightStop))
+		highlightInterval: highlightRange)
+]
+
+{ #category : #'gt-extension' }
+DASTContext >> gtInspectorVarsIn: composite [
+	<gtInspectorPresentationOrder: 1> 
+	
+	^ (composite fastTable)
+		title: 'Variables';
+		display: [ 
+			(self allInternVars collect: [ :each | { 'ctx'      . each key . each value } ]) , 
+	  		(self allTemps      collect: [ :each | { 'temporal' . each key . each value } ]) , 
+	  		(self allInstVars   collect: [ :each | { 'instance' . each key . each value } ]) ];
+		"children: [ :each | 
+			(each value isDictionary) 
+				ifTrue: [ each value associations ] 
+				ifFalse: [ (each value isArray and: [ each value allSatisfy: #isDictionary ])
+						ifTrue: [ each value collectWithIndex: [:x :i | i -> x ] ]
+						ifFalse: [ #() ] ] ];"
+		column: 'Type' 
+			evaluated: [:each | GTObjectPrinter asTruncatedTextFrom: (each at: 1) ];
+		column: 'Key' 
+			evaluated: [:each | GTObjectPrinter asTruncatedTextFrom: (each at: 2) ];
+		column: 'Value' 
+			evaluated: [:each | GTObjectPrinter asTruncatedTextFrom: (each at: 3) ];
+		"column: 'Origin Context' 
+			evaluated: [:each | GTObjectPrinter asTruncatedTextFrom: (each at: 2) ];
+		"
+		"selectionAct: [ :table |
+			table rawSelection do: [ :assoc | self removeKey: assoc key ].
+			table update ]
+			entitled: 'Remove item(s)';
+		selectionPopulate: #selection 
+			entitled: 'Open key'
+			with: [ :table | (table rawSelection collect: #key) gtInspectorInterestingObject ];
+		beMultiple;"
+		send: [ :selection | 
+			selection isNil 
+			ifTrue:[nil]
+			ifFalse:[ (selection size = 1) 
+				ifTrue: [ (selection anyOne at: 3)  ] 
+				ifFalse: [ self halt. selection collect: [ :each | each at: 3 ] ] ]]
 ]
 
 { #category : #accessing }
@@ -280,6 +421,9 @@ DASTContext >> hasSender: context [
 DASTContext >> initialize [
 	super initialize.
 	stack := DASTStack new.
+	executedNodes := DASTStack new.
+	nodes := DASTStack new.
+	currentNode := nil.
 	variablesDict := Dictionary new.
 	tempVarsNamesIndexes := Dictionary new.
 	tempVarIndex := 0
@@ -289,6 +433,11 @@ DASTContext >> initialize [
 DASTContext >> isBlockContext [
 
 	self subclassResponsibility 
+]
+
+{ #category : #testing }
+DASTContext >> isCurrentContext [
+	^ self evaluator interpreter currentContext = self
 ]
 
 { #category : #testing }
@@ -330,22 +479,29 @@ DASTContext >> lookupContextDefiningLocalVariable: aByteSymbol [
 	
 	(self definesLocalVariableNamed: aByteSymbol) ifTrue: [ ^ self ].
 	
-	^ self isBlockContext
-		ifTrue: [ closure outerContext lookupContextDefiningLocalVariable: aByteSymbol ]
-		ifFalse: [ nil ]
+	self isBlockContext
+		ifTrue: [ ^ closure outerContext lookupContextDefiningLocalVariable: aByteSymbol ]
+		ifFalse: [ ^ nil ]
 ]
 
 { #category : #'API-lookup' }
 DASTContext >> lookupSelector: aByteString startInClass: aClass [ 
 	| lclass |
+	"(aByteString = #signal) ifTrue: [ self halt. ]."
 	lclass := 
 		(aClass == UnhandledError) 
 			ifTrue: [ DASTErrorNonInteractive ]
 			ifFalse: [ aClass ].
-	^( lclass lookupSelector: aByteString)
-		ifNil: [ "ToDo: implement does not understand" 
+	^( lclass lookupSelector: aByteString )
+		ifNil: [ 
 					self error: 'The class ',lclass asString,' does not understand the message: ', aByteString asString ].
 	
+
+]
+
+{ #category : #accessing }
+DASTContext >> messageNode [
+	^ messageNode
 ]
 
 { #category : #accessing }
@@ -354,8 +510,8 @@ DASTContext >> messageNode: aRBMessageNode [
 ]
 
 { #category : #accessing }
-DASTContext >> method [
-	^ self methodOrBlock 
+DASTContext >> methodClass [
+	^ self methodOrBlock methodClass
 ]
 
 { #category : #accessing }
@@ -369,15 +525,15 @@ DASTContext >> methodOrBlock: aDASTClosure [
 	closure := aDASTClosure
 ]
 
-{ #category : #initialization }
-DASTContext >> namedTempAt: anIndex [
-	^ self variablesDict at: (self tempNames at: anIndex) 
-]
-
 { #category : #'private-exceptions' }
 DASTContext >> nextHandlerContext [
 
 	^ self sender findNextHandlerContext
+]
+
+{ #category : #'accessing-environment' }
+DASTContext >> nilObject [
+	^ self evaluator nilObject
 ]
 
 { #category : #accessing }
@@ -425,12 +581,6 @@ DASTContext >> receiver: anObject [
 	receiver := anObject
 ]
 
-{ #category : #modifying }
-DASTContext >> removePrimitiveFromMethod [
-	
-	closure nodeAST removePragma: (closure nodeAST pragmas select: [ :p | p isPrimitive ]) first
-]
-
 { #category : #'private-exceptions' }
 DASTContext >> resume: value [
 	self resume: value through: (thisContext findNextUnwindContextUpTo: self)
@@ -468,6 +618,13 @@ DASTContext >> returnContext [
 	^self isBlockContext 
 		ifTrue: [ ^ parent returnContext ]
 		ifFalse: [ ^ sender  ]
+]
+
+{ #category : #accessing }
+DASTContext >> rootContext [
+	self sender ifNil: [ ^ self ].
+	
+	^ self sender rootContext
 ]
 
 { #category : #accessing }
@@ -514,6 +671,11 @@ DASTContext >> setTemporalVariablesNamed: names values: values [
 					 put: val ].
 ]
 
+{ #category : #'gt-extension' }
+DASTContext >> sourceCode [
+	^ self methodOrBlock sourceCodeWithClassAndSelector 
+]
+
 { #category : #'accessing - private' }
 DASTContext >> stack [
 	^ stack
@@ -527,11 +689,6 @@ DASTContext >> stack: anObject [
 { #category : #'accessing - private' }
 DASTContext >> tempAt: anIndex [
 	^ self variablesDict at: (self variablesDict keys at: anIndex)
-]
-
-{ #category : #'accessing - private' }
-DASTContext >> tempNames [
-	^ self variablesDict keys
 ]
 
 { #category : #'private-exceptions' }
@@ -577,4 +734,12 @@ DASTContext >> unwindComplete [
 { #category : #'accessing - private' }
 DASTContext >> variablesDict [
 	^ variablesDict
+]
+
+{ #category : #'API-store' }
+DASTContext >> write: value toInstVarNamed: name [
+	| index |
+	index := ((self evaluator classOf: self receiver) allInstVarNames indexOf: name).
+	(index = 0) ifTrue: [ InstanceVariableNotFound signalFor: name asString ].
+	self receiver instanceVariableAtIndex: index put: value
 ]

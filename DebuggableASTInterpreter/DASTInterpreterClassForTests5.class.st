@@ -1,6 +1,9 @@
 Class {
 	#name : #DASTInterpreterClassForTests5,
 	#superclass : #Object,
+	#classVars : [
+		'classVar5'
+	],
 	#classInstVars : [
 		'count'
 	],

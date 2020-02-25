@@ -8,12 +8,38 @@ Class {
 	#category : #'DebuggableASTInterpreter-Contexts'
 }
 
-{ #category : #accessing }
-DASTContextRootSmalltalk >> findVariable: aByteSymbol [
+{ #category : #'accessing - private' }
+DASTContextRootSmalltalk >> allInstVars [ 
+	^#()
+]
 
-	^ Smalltalk globals at: aByteSymbol ifAbsent: [ 
-		self error: 'Variable ', aByteSymbol , ' not defined!'
-		 ]
+{ #category : #'accessing - private' }
+DASTContextRootSmalltalk >> allTemps [
+	^ #()
+]
+
+{ #category : #accessing }
+DASTContextRootSmalltalk >> assignVariable: name value: value [
+	(self findVariable: name)
+	   ifNotNil: [ self evaluator environment setGlobal: name value: value. ^ true ].
+	^ false
+]
+
+{ #category : #'API-lookup' }
+DASTContextRootSmalltalk >> findLocalVariable: aName [
+	^ nil
+		
+]
+
+{ #category : #accessing }
+DASTContextRootSmalltalk >> findVariable: aName [
+	^ self findGlobalVariable: aName
+]
+
+{ #category : #'gt-extension' }
+DASTContextRootSmalltalk >> gtInspectorSourceIn: composite [
+	<gtInspectorPresentationOrder: 30> 
+	''
 ]
 
 { #category : #'gt-extension' }
@@ -36,4 +62,19 @@ DASTContextRootSmalltalk >> isRoot [
 DASTContextRootSmalltalk >> isUnwindContext [
 	"is this context for  method that is marked?"
 	^ self shouldNotImplement 
+]
+
+{ #category : #accessing }
+DASTContextRootSmalltalk >> methodClass [
+	^ nil
+]
+
+{ #category : #'gt-extension' }
+DASTContextRootSmalltalk >> sourceCode [
+	^ ''
+]
+
+{ #category : #'as yet unclassified' }
+DASTContextRootSmalltalk >> temps: aCollection [ 
+	self shouldBeImplemented.
 ]
