@@ -92,9 +92,8 @@ DASTEvaluator >> findClassVariable: aName inObjectAndItsParents: anObject [
 
 { #category : #'variables-global' }
 DASTEvaluator >> findGlobalVariable: aString [ 
-	 ^ (self environment bindingOf: aString) 
-		ifNil: [ self error: 'Variable ', aString , ' not defined!' ] 
-		ifNotNil: [  :b | b ]
+	 ^(self environment bindingOf: aString) 
+			ifNil: [ self error: 'Variable ', aString , ' not defined!' ] 
 ]
 
 { #category : #'variables-instance' }

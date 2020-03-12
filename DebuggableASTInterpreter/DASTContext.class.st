@@ -226,7 +226,7 @@ DASTContext >> findContextSuchThat: testBlock [
 	^ nil
 ]
 
-{ #category : #accessing }
+{ #category : #'API-lookup' }
 DASTContext >> findGlobalVariable: aByteSymbol [
 	
 	^ self evaluator findGlobalVariable: aByteSymbol
