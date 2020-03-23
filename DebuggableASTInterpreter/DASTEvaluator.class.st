@@ -75,7 +75,6 @@ DASTEvaluator >> findClassVariable: aString inObject: anObject [
 { #category : #'variables-class' }
 DASTEvaluator >> findClassVariable: aName inObjectAndItsParents: anObject [
 	| mobjclass hobjclass hobjparent |
-	
 	mobjclass := anObject isClassMirror
 		ifTrue: [ anObject asClassMirror ]
 		ifFalse: [ anObject basicClass ].
@@ -91,9 +90,17 @@ DASTEvaluator >> findClassVariable: aName inObjectAndItsParents: anObject [
 ]
 
 { #category : #'variables-global' }
-DASTEvaluator >> findGlobalVariable: aString [ 
-	 ^(self environment bindingOf: aString) 
-			ifNil: [ self error: 'Variable ', aString , ' not defined!' ] 
+DASTEvaluator >> findGlobalVariable: aString [
+	| binding aRGObject |
+	 
+	binding := self environment bindingOf: aString.
+	binding ifNil: [ ^ self error: 'Variable ', aString , ' not defined!' ].
+	"Mark the class or global variable as accessed in the ring model"
+	aRGObject := self systemDefinition 
+		classNamed: aString 
+		ifAbsent: [ self systemDefinition globalVariableNamed: aString ].
+	aRGObject markAsAccessed.
+	^ binding
 ]
 
 { #category : #'variables-instance' }
@@ -134,6 +141,30 @@ DASTEvaluator >> literalFrom: anObject [
 	^ anObject asLiteralInObjectSpace: self objectSpace
 ]
 
+{ #category : #lookup }
+DASTEvaluator >> lookupSelector: aByteString startInClass: aClass [
+	| method methodClass rgClassBlock |
+	
+	method := self pvtLookupSelector: aByteString startInClass: aClass.
+	method
+		ifNil: [ self
+				error:
+					'The class ' , aClass asString , ' does not understand the message: '
+						, aByteString asString ].
+	^ method
+]
+
+{ #category : #mark }
+DASTEvaluator >> markMethodAsAccessed: method [ 
+	" Mark the method as accessed in the ring model for deciding wether or not install it later in the kernel"
+	| methodClass |
+	methodClass := method methodClass == BlockClosure
+		ifTrue: [ self systemDefinition classWithRole: 'BlockClosure' ]
+		ifFalse: [ method methodClass ].
+	methodClass markMethodAsAccessed: method.
+	
+]
+
 { #category : #encoding }
 DASTEvaluator >> newArrayWithAll: aCollection [ 
 	^ self objectSpace newArrayWithAll: aCollection
@@ -170,6 +201,30 @@ DASTEvaluator >> primitiveResultIsError: anEPPrimitiveResult [
 { #category : #'access primitives' }
 DASTEvaluator >> primitiveResultValue: anEPPrimitiveResult [ 
 	^ anEPPrimitiveResult value
+]
+
+{ #category : #lookup }
+DASTEvaluator >> pvtLookupSelector: aByteString startInClass: aClass [
+	| correctClass method |
+	"We handle errors using our own DASTErrorNonInteractive class"
+	correctClass := aClass == UnhandledError
+		ifTrue: [ DASTErrorNonInteractive ]
+		ifFalse: [ aClass ].
+	"We perform the lookup"
+	method := correctClass lookupSelectorAndMarkTraversedClasses: aByteString.
+	method ifNotNil: [ ^ method ].
+	"If the method was not found and the receiver is aDASTBlock, 
+	we must force the lookup to go in the class Block in the ring model"
+	correctClass == DASTBlock
+		ifTrue: [ correctClass := self systemDefinition classWithRole: #BlockClosure ].
+	method := correctClass lookupSelectorAndMarkTraversedClasses: aByteString.
+	"If the method was not found it will be nil"
+	^ method
+]
+
+{ #category : #accessing }
+DASTEvaluator >> systemDefinition [
+	^ codeProvider systemDefinition
 ]
 
 { #category : #decoding }

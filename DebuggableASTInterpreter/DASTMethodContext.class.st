@@ -45,9 +45,9 @@ DASTMethodContext >> initializeContext [
 	
 	self	parent: sender.
 	aSelector := messageNode selector.
-	
 	aClass := self getClassForLookup.
-	compiledMethod := self lookupSelector: aSelector startInClass: aClass.
+	compiledMethod := self evaluator lookupSelector: aSelector startInClass: aClass.
+	self evaluator markMethodAsAccessed: compiledMethod.
 	ast := DASTMethod new initializeWith: compiledMethod ast evaluator: self evaluator. 
 	visitor := DASTPostOrderTreeVisitor new.
 	ast body acceptVisitor: visitor.

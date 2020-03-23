@@ -63,7 +63,8 @@ DASTContext class >> newWithSender: aDASTContext receiver: aReceiver messageNode
 		receiver: aReceiver;
 		messageNode: aRBMessageNode;
 		evaluator: aDASTEvaluator.
-	^ context initializeContext
+	context initializeContext.
+	^ context
 ]
 
 { #category : #'instance creation' }
@@ -482,21 +483,6 @@ DASTContext >> lookupContextDefiningLocalVariable: aByteSymbol [
 	self isBlockContext
 		ifTrue: [ ^ closure outerContext lookupContextDefiningLocalVariable: aByteSymbol ]
 		ifFalse: [ ^ nil ]
-]
-
-{ #category : #'API-lookup' }
-DASTContext >> lookupSelector: aByteString startInClass: aClass [ 
-	| lclass |
-	"(aByteString = #signal) ifTrue: [ self halt. ]."
-	lclass := 
-		(aClass == UnhandledError) 
-			ifTrue: [ DASTErrorNonInteractive ]
-			ifFalse: [ aClass ].
-	^( lclass lookupSelector: aByteString )
-		ifNil: [ 
-					self error: 'The class ',lclass asString,' does not understand the message: ', aByteString asString ].
-	
-
 ]
 
 { #category : #accessing }

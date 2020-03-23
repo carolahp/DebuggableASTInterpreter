@@ -7,6 +7,13 @@ Class {
 	#category : #'DebuggableASTInterpreter-Closures'
 }
 
+{ #category : #lookup }
+DASTBlock class >> isNilObject [
+	"This is here only to make work the method 
+	 DASTEvaluator >> findClassVariable:inObjectAndItsParents:"
+	^ true
+]
+
 { #category : #'accessing method dictionary' }
 DASTBlock class >> lookupSelector: selector [
 	" Hack for accessing method definition of BlockClosure while not inheriting from it"
@@ -17,6 +24,11 @@ DASTBlock class >> lookupSelector: selector [
 	^ BlockClosure lookupSelector: selector
 	
 	
+]
+
+{ #category : #lookup }
+DASTBlock class >> lookupSelectorAndMarkTraversedClasses: selector [ 
+	^ self lookupSelector: selector
 ]
 
 { #category : #accessing }

@@ -113,6 +113,17 @@ DASTSystemEnvironment >> literalFrom: anInteger [
 	^ anInteger
 ]
 
+{ #category : #'API-lookup' }
+DASTSystemEnvironment >> lookupSelector: aString startInClass: aClass [ 
+	^ aClass lookupSelector: aString
+]
+
+{ #category : #mark }
+DASTSystemEnvironment >> markMethodAsAccessed: aCollection [ 
+	"In a system environment we do not mark methods. This is here only for compatibility with DASTEnvironment"
+	^ self 
+]
+
 { #category : #encoding }
 DASTSystemEnvironment >> newArrayWithAll: aCollection [ 
 	^ aCollection asArray
