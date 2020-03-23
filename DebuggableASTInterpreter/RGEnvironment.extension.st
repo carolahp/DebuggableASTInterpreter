@@ -6,6 +6,17 @@ RGEnvironment >> classNamed: aString ifAbsent: aBlockClosure [
 ]
 
 { #category : #'*DebuggableASTInterpreter' }
+RGEnvironment >> getAccessedBehaviorsBySimulatedExecution [ 
+	^ self ask behaviors select: [ :beh | beh isMarkedAsAccessed ]
+]
+
+{ #category : #'*DebuggableASTInterpreter' }
+RGEnvironment >> getAccessedMethodsBySimulatedExecution [
+	^ (self ask behaviors flatCollect: #localMethods)
+		select: [ :meth | meth isMarkedAsAccessed ]
+]
+
+{ #category : #'*DebuggableASTInterpreter' }
 RGEnvironment >> markMaybeAccessedBehaviorsAsAccessed [
 	"We mark as accessed all behaviors that were previously marked as maybe accessed"
 	(self ask behaviors
