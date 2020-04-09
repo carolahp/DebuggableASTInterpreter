@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'block'
 	],
-	#category : #'DebuggableASTInterpreter-TestsClasses'
+	#category : 'DebuggableASTInterpreter-TestsClasses'
 }
 
 { #category : #'as yet unclassified' }

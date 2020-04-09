@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'interpreter'
 	],
-	#category : #'DebuggableASTInterpreter-Espell'
+	#category : 'DebuggableASTInterpreter-Espell'
 }
 
 { #category : #'variables-class' }
@@ -143,7 +143,7 @@ DASTEvaluator >> literalFrom: anObject [
 
 { #category : #lookup }
 DASTEvaluator >> lookupSelector: aByteString startInClass: aClass [
-	| method methodClass rgClassBlock |
+	| method |
 	
 	method := self pvtLookupSelector: aByteString startInClass: aClass.
 	method
@@ -205,19 +205,16 @@ DASTEvaluator >> primitiveResultValue: anEPPrimitiveResult [
 
 { #category : #lookup }
 DASTEvaluator >> pvtLookupSelector: aByteString startInClass: aClass [
-	| correctClass method |
-	"We handle errors using our own DASTErrorNonInteractive class"
-	correctClass := aClass == UnhandledError
-		ifTrue: [ DASTErrorNonInteractive ]
-		ifFalse: [ aClass ].
+	| class method |
+	class := aClass.
 	"We perform the lookup"
-	method := correctClass lookupSelectorAndMarkTraversedClasses: aByteString.
+	method := class lookupSelectorAndMarkTraversedClasses: aByteString.
 	method ifNotNil: [ ^ method ].
 	"If the method was not found and the receiver is aDASTBlock, 
 	we must force the lookup to go in the class Block in the ring model"
-	correctClass == DASTBlock
-		ifTrue: [ correctClass := self systemDefinition classWithRole: #BlockClosure ].
-	method := correctClass lookupSelectorAndMarkTraversedClasses: aByteString.
+	class == DASTBlock
+		ifTrue: [ class := self systemDefinition classWithRole: #BlockClosure ].
+	method := class lookupSelectorAndMarkTraversedClasses: aByteString.
 	"If the method was not found it will be nil"
 	^ method
 ]

@@ -10,7 +10,7 @@ Class {
 		'nodeAST',
 		'numArgs'
 	],
-	#category : #'DebuggableASTInterpreter-Closures'
+	#category : 'DebuggableASTInterpreter-Closures'
 }
 
 { #category : #accessing }

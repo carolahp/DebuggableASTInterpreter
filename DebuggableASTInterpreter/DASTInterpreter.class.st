@@ -11,7 +11,7 @@ Class {
 		'astCache',
 		'myComposite'
 	],
-	#category : #'DebuggableASTInterpreter-Core'
+	#category : 'DebuggableASTInterpreter-Core'
 }
 
 { #category : #accessing }

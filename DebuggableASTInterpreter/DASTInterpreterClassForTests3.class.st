@@ -10,7 +10,7 @@ Class {
 	#classInstVars : [
 		'ivClassSide'
 	],
-	#category : #'DebuggableASTInterpreter-TestsClasses'
+	#category : 'DebuggableASTInterpreter-TestsClasses'
 }
 
 { #category : #initialization }

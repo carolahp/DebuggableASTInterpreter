@@ -4,7 +4,7 @@ I am a context created to evaluate the body of a block
 Class {
 	#name : #DASTBlockContext,
 	#superclass : #DASTContext,
-	#category : #'DebuggableASTInterpreter-Contexts'
+	#category : 'DebuggableASTInterpreter-Contexts'
 }
 
 { #category : #'accessing - private' }

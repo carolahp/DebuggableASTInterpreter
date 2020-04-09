@@ -5,7 +5,7 @@ Class {
 		'primitiveNumber',
 		'receiver'
 	],
-	#category : #'DebuggableASTInterpreter-Exceptions'
+	#category : 'DebuggableASTInterpreter-Exceptions'
 }
 
 { #category : #instantiation }

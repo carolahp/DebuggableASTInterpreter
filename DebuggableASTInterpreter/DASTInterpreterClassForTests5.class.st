@@ -7,7 +7,7 @@ Class {
 	#classInstVars : [
 		'count'
 	],
-	#category : #'DebuggableASTInterpreter-TestsClasses'
+	#category : 'DebuggableASTInterpreter-TestsClasses'
 }
 
 { #category : #'class initialization' }

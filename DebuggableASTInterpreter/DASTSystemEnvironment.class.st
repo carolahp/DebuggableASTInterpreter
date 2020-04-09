@@ -5,7 +5,7 @@ Class {
 		'astCache',
 		'interpreter'
 	],
-	#category : #'DebuggableASTInterpreter-Environments'
+	#category : 'DebuggableASTInterpreter-Environments'
 }
 
 { #category : #'variables-class' }

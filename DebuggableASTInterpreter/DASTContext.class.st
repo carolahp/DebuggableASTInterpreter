@@ -24,7 +24,7 @@ Class {
 	#classVars : [
 		'valueToBlockMessages'
 	],
-	#category : #'DebuggableASTInterpreter-Contexts'
+	#category : 'DebuggableASTInterpreter-Contexts'
 }
 
 { #category : #instantiation }
@@ -321,10 +321,14 @@ DASTContext >> findVariable: aByteSymbol [
 
 { #category : #'accessing - private' }
 DASTContext >> getClassForLookup [
-
-	 ^ messageNode isSuperSend 
+	| aClass |
+	
+	aClass := messageNode isSuperSend 
 			ifTrue: [messageNode methodNode methodClass superclass] 
-			ifFalse: [self evaluator classOf: receiver]
+			ifFalse: [self evaluator classOf: receiver].
+	^ (aClass == UnhandledError) 
+			ifTrue: [ DASTErrorNonInteractive ]
+			ifFalse: [ aClass ].
 ]
 
 { #category : #'gt-extension' }

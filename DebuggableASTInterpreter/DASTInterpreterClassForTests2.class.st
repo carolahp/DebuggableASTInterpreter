@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'x'
 	],
-	#category : #'DebuggableASTInterpreter-TestsClasses'
+	#category : 'DebuggableASTInterpreter-TestsClasses'
 }
 
 { #category : #initialization }

@@ -5,7 +5,7 @@ Class {
 		'evaluatePrimitive',
 		'evaluator'
 	],
-	#category : #'DebuggableASTInterpreter-Closures'
+	#category : 'DebuggableASTInterpreter-Closures'
 }
 
 { #category : #'gt-inspector-extension' }

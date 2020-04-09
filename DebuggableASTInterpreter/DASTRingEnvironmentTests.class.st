@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'aDASTRingEnvironment'
 	],
-	#category : #'DebuggableASTInterpreter-Tests'
+	#category : 'DebuggableASTInterpreter-Tests'
 }
 
 { #category : #packages }

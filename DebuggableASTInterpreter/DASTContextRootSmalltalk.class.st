@@ -5,7 +5,7 @@ I must be refactored when contexts start to use DASTEnvironments
 Class {
 	#name : #DASTContextRootSmalltalk,
 	#superclass : #DASTContext,
-	#category : #'DebuggableASTInterpreter-Contexts'
+	#category : 'DebuggableASTInterpreter-Contexts'
 }
 
 { #category : #'accessing - private' }

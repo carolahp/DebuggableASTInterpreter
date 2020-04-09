@@ -5,7 +5,7 @@ Class {
 		'iv1',
 		'iv2'
 	],
-	#category : #'DebuggableASTInterpreter-TestsClasses'
+	#category : 'DebuggableASTInterpreter-TestsClasses'
 }
 
 { #category : #initialization }

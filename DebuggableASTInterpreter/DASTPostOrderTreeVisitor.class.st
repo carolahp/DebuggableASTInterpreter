@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'stack'
 	],
-	#category : #'DebuggableASTInterpreter-NodeArrangement'
+	#category : 'DebuggableASTInterpreter-NodeArrangement'
 }
 
 { #category : #api }
