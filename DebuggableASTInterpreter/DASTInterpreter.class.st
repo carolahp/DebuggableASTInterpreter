@@ -11,7 +11,7 @@ Class {
 		'astCache',
 		'myComposite'
 	],
-	#category : 'DebuggableASTInterpreter-Core'
+	#category : #'DebuggableASTInterpreter-Core'
 }
 
 { #category : #accessing }
@@ -157,6 +157,12 @@ DASTInterpreter >> initializeWithProgram: aRBNode inContext: aDASTContext [
 		stack: DASTStack new;  
 		methodOrBlock: aDASTContext methodOrBlock;
 		yourself
+]
+
+{ #category : #initialization }
+DASTInterpreter >> initializeWithProgram: aRBNode withTemps: aCollection [
+	^self initializeWithProgram: aRBNode withTemps: aCollection astCache: astCache
+	
 ]
 
 { #category : #initialization }
