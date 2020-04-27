@@ -391,12 +391,18 @@ DASTInterpreter >> visitMessageNode: aRBMessageNode [
 	receiver := self stackPop.
 	
 	" Current context initialization (implicit lookup)"
-	newContext := 
+	[newContext := 
 		DASTContext
 			newWithSender: self currentContext 
 			receiver: receiver 
 			messageNode: aRBMessageNode
-			evaluator: self evaluator.
+			evaluator: self evaluator.] on: DASTDoesNotUnderstand do: [ 
+			"directly applying the message defined by 'selector' to the mirror that connectos to the receiver"
+			|result|
+			result := receiver perform: aRBMessageNode selector.
+			self stackPush: result.
+			^ result
+			 ].
 	
 	" Lookup"
 	method := newContext methodOrBlock.

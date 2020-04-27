@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'interpreter'
 	],
-	#category : 'DebuggableASTInterpreter-Espell'
+	#category : #'DebuggableASTInterpreter-Espell'
 }
 
 { #category : #'variables-class' }
@@ -147,8 +147,7 @@ DASTEvaluator >> lookupSelector: aByteString startInClass: aClass [
 	
 	method := self pvtLookupSelector: aByteString startInClass: aClass.
 	method
-		ifNil: [ self
-				error:
+		ifNil: [ DASTDoesNotUnderstand signal:
 					'The class ' , aClass asString , ' does not understand the message: '
 						, aByteString asString ].
 	^ method
