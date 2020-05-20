@@ -52,8 +52,9 @@ DASTEvaluator >> evaluateAST: ast [
 
 { #category : #interpreting }
 DASTEvaluator >> evaluateCode: someCode withTemps: aCollectionOfTemps [
-	
-	^self evaluateAST: (self parse: someCode) withTemps: aCollectionOfTemps 
+	| temps |
+	temps := aCollectionOfTemps collect: [ :assoc | assoc key -> (assoc value asRemoteObjectInObjectSpace: self objectSpace) ].
+	^ self evaluateAST: (self parse: someCode) withTemps: temps 
 ]
 
 { #category : #primitives }
@@ -73,20 +74,18 @@ DASTEvaluator >> findClassVariable: aString inObject: anObject [
 ]
 
 { #category : #'variables-class' }
-DASTEvaluator >> findClassVariable: aName inObjectAndItsParents: anObject [
-	| mobjclass hobjclass hobjparent |
-	mobjclass := anObject isClassMirror
-		ifTrue: [ anObject asClassMirror ]
-		ifFalse: [ anObject basicClass ].
-	hobjclass := mobjclass asRemoteClassOnEnvironment: (EPRemoteEnvironment on: self environment bootstrapEnvironment).
-
-	hobjparent := hobjclass.
-	[ hobjparent isNilObject ] whileFalse: [ 
-		(hobjparent innerBindingOf: aName) ifNotNil: [:assoc | ^ assoc].
-		hobjparent := hobjparent superclass.
+DASTEvaluator >> findClassVariable: aName inObjectAndItsParents: remoteObject [
+	| class superclass |
+	class := remoteObject isRemoteClass
+		ifTrue: [ remoteObject ]
+		ifFalse: [ remoteObject basicClass ].
+	
+	superclass := class.
+	[ superclass isNilObject ] whileFalse: [ 
+		(superclass innerBindingOf: aName) ifNotNil: [:assoc | ^ assoc].
+		superclass := superclass superclass.
 		 ].
 	^ nil
-	
 ]
 
 { #category : #'variables-global' }
@@ -105,16 +104,7 @@ DASTEvaluator >> findGlobalVariable: aString [
 
 { #category : #'variables-instance' }
 DASTEvaluator >> findInstanceVariable: aName inObject: anObject [
-	| rgClass |
-	self flag: 'incomplete return value'.
-	
-	rgClass := anObject basicClass asRGClass.
-	rgClass ifNil: [ ^ nil ].
-	(rgClass allInstVarNames includes: aName)
-		ifTrue: [ |ivIndex| 
-			ivIndex := rgClass instVarIndexFor: aName ifAbsent: [ self halt ].
-			^ anObject instanceVariableAtIndex: ivIndex ].
-	^ nil
+	^ anObject instanceVariableNamed: aName
 ]
 
 { #category : #interpreting }
