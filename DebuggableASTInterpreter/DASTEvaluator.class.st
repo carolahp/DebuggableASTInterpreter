@@ -148,7 +148,7 @@ DASTEvaluator >> markMethodAsAccessed: method [
 	" Mark the method as accessed in the ring model for deciding wether or not install it later in the kernel"
 	| methodClass |
 	methodClass := method methodClass == BlockClosure
-		ifTrue: [ self systemDefinition classWithRole: 'BlockClosure' ]
+		ifTrue: [ self systemDefinition classBlockClosure ]
 		ifFalse: [ method methodClass ].
 	methodClass markMethodAsAccessed: method.
 	
@@ -202,7 +202,7 @@ DASTEvaluator >> pvtLookupSelector: aByteString startInClass: aClass [
 	"If the method was not found and the receiver is aDASTBlock, 
 	we must force the lookup to go in the class Block in the ring model"
 	class == DASTBlock
-		ifTrue: [ class := self systemDefinition classWithRole: #BlockClosure ].
+		ifTrue: [ class := self systemDefinition classBlockClosure ].
 	method := class lookupSelectorAndMarkTraversedClasses: aByteString.
 	"If the method was not found it will be nil"
 	^ method
