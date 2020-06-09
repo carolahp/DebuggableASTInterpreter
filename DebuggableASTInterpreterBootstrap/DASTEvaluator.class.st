@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'interpreter'
 	],
-	#category : #'DebuggableASTInterpreter-Espell'
+	#category : #'DebuggableASTInterpreterBootstrap-Espell'
 }
 
 { #category : #'variables-class' }
