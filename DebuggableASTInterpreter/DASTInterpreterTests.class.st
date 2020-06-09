@@ -1,7 +1,7 @@
 Class {
 	#name : #DASTInterpreterTests,
 	#superclass : #DASTAbstractInterpreterTests,
-	#category : 'DebuggableASTInterpreter-Tests'
+	#category : #'DebuggableASTInterpreter-Tests'
 }
 
 { #category : #tests }
@@ -785,6 +785,20 @@ DASTInterpreterTests >> testSetInheritedClassVariableFromMethodInInstanceSide [
 		  equals: 5
 		
 
+]
+
+{ #category : #tests }
+DASTInterpreterTests >> testSteven [
+
+	self assert: (self evaluateProgram: 'Steven new classVarX' ) 
+		  equals: 42
+]
+
+{ #category : #tests }
+DASTInterpreterTests >> testStevenCorrupt [
+
+	self assert: (self evaluateProgram: 'StevenCorrupt new classVarX' ) 
+		  equals: 42
 ]
 
 { #category : #'tests-super' }

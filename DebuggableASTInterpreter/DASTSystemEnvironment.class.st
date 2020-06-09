@@ -5,7 +5,7 @@ Class {
 		'astCache',
 		'interpreter'
 	],
-	#category : 'DebuggableASTInterpreter-Environments'
+	#category : #'DebuggableASTInterpreter-Environments'
 }
 
 { #category : #'variables-class' }
@@ -53,7 +53,7 @@ DASTSystemEnvironment >> executePrimitiveMethod: aDASTMethod withReceiver: anObj
 DASTSystemEnvironment >> findClassVariable: aName inObject: anObject [
 	
 	^ anObject isClass 
-		ifTrue: [ anObject innerBindingOf: aName ]
+		ifTrue: [ [anObject innerBindingOf: aName] on: Exception do: [ nil ] ]
 		ifFalse:[ anObject class innerBindingOf: aName ] 
 	
 ]

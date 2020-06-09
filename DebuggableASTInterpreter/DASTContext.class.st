@@ -298,7 +298,7 @@ DASTContext >> findNextUnwindContextUpTo: aContext [
 { #category : #'API-lookup' }
 DASTContext >> findVariable: aByteSymbol [
 	"Return the value of a variable. If this context redefines a variable defined by its parent context, this method will return the variable value for this context"
-	
+	| var |
 	"local variables"
 	(self findLocalVariable: aByteSymbol)
 		ifNotNil: [ :assoc | ^ assoc value ].
@@ -308,8 +308,9 @@ DASTContext >> findVariable: aByteSymbol [
 		ifNotNil: [ :assoc |  ^ assoc value ].
 	
 	"class variables"
-	(self findClassVariable: aByteSymbol)
-		ifNotNil: [ :assoc | ^ assoc value ].
+	
+	[var := self findClassVariable: aByteSymbol] on: Exception do: [ ^nil ].
+	var	 ifNotNil: [ :assoc | ^ assoc value ].
 	
 	"global variables"
 	(self findGlobalVariable: aByteSymbol) 
