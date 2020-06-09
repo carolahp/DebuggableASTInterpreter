@@ -104,7 +104,10 @@ DASTEvaluator >> findGlobalVariable: aString [
 
 { #category : #'variables-instance' }
 DASTEvaluator >> findInstanceVariable: aName inObject: anObject [
-	^ anObject instanceVariableNamed: aName
+
+	^ [anObject instanceVariableNamed: aName]
+			on: EP2SlotNotFoundException 
+			do: [nil].
 ]
 
 { #category : #interpreting }
