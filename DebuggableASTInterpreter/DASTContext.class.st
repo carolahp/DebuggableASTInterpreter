@@ -24,7 +24,7 @@ Class {
 	#classVars : [
 		'valueToBlockMessages'
 	],
-	#category : 'DebuggableASTInterpreter-Contexts'
+	#category : #'DebuggableASTInterpreter-Contexts'
 }
 
 { #category : #instantiation }
@@ -123,7 +123,9 @@ DASTContext >> at: aByteSymbol put: anObject [
 
 { #category : #testing }
 DASTContext >> canExecute [
-	^ self nodes isNotEmpty and: [ self unhandledException isNil ]
+	^ self nodes isNotEmpty 
+		and: [ self unhandledException isNil
+		and: [ (self parent isRoot and: self returnNodeReached) not ] ]
 ]
 
 { #category : #'gt-extension' }
@@ -608,6 +610,13 @@ DASTContext >> returnContext [
 	^self isBlockContext 
 		ifTrue: [ ^ parent returnContext ]
 		ifFalse: [ ^ sender  ]
+]
+
+{ #category : #testing }
+DASTContext >> returnNodeReached [
+	^ self nodes size = 2 
+		and: [(self nodes at:1) isSequence
+		and: [(self nodes at:2) isReturn ]]
 ]
 
 { #category : #accessing }
