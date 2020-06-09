@@ -171,7 +171,7 @@ DASTInterpreter >> initializeWithProgram: aRBNode withTemps: aCollection astCach
 { #category : #testing }
 DASTInterpreter >> isTerminated [
 	self flag: 'ToDo: is this method necessary?'.
-	^ self currentContext nodes isEmpty and: [self currentContext parent isRoot].
+	^ self currentContext isRoot.
 ]
 
 { #category : #accessing }
