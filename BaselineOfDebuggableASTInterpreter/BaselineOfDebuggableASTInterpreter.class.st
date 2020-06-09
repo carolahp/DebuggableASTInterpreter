@@ -22,6 +22,7 @@ BaselineOfDebuggableASTInterpreter >> baseline: spec [
 			"Packages"
 			spec
 				package: 'DebuggableASTInterpreter';
+				package: 'DebuggableASTDebuggerBootstrap' with: [ spec requires: #('DebuggableASTInterpreter') ];
 				package: 'DebuggableASTDebugger' with: [ spec requires: #('DebuggableASTInterpreter' 'SpecDebugger') ];
 				package: 'DebuggableASTInterpreterOverlays' with: [ spec requires: #('DebuggableASTDebugger' 'Ghost') ]].
 
@@ -29,6 +30,7 @@ BaselineOfDebuggableASTInterpreter >> baseline: spec [
 			spec
 				group: 'default' with: #('Model');
 				group: 'Model' with: #('DebuggableASTInterpreter');
+				group: 'Bootstrap' with: #('DebuggableASTInterpreterBootstrap');
 				group: 'Debugger' with: #('DebuggableASTDebugger');
 				group: 'Overlay' with: #('DebuggableASTInterpreterOverlays')
 ]
