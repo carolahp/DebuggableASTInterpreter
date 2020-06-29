@@ -41,7 +41,12 @@ DASTEvaluator >> astCache [
 
 { #category : #encoding }
 DASTEvaluator >> blockFrom: aDASTBlock [
-	^ (self objectSpace backend mirrorOnExternalHandle: aDASTBlock) asDASTBlockMirror
+	^ (self objectSpace backend mirrorOnExternalHandle: aDASTBlock) asRemoteBlock
+]
+
+{ #category : #accessing }
+DASTEvaluator >> classLoader [
+	^ self codeProvider classLoader
 ]
 
 { #category : #interpreting }
@@ -150,9 +155,10 @@ DASTEvaluator >> lookupSelector: aByteString startInClass: aClass [
 DASTEvaluator >> markMethodAsAccessed: method [ 
 	" Mark the method as accessed in the ring model for deciding wether or not install it later in the kernel"
 	| methodClass |
-	methodClass := method methodClass == BlockClosure
-		ifTrue: [ self systemDefinition classBlockClosure ]
-		ifFalse: [ method methodClass ].
+	methodClass := 
+		(method methodClass == BlockClosure or: method methodClass == Object)
+			ifTrue: [ self systemDefinition classBlockClosure ]
+			ifFalse: [ method methodClass ].
 	methodClass markMethodAsAccessed: method.
 	
 ]
@@ -178,7 +184,7 @@ DASTEvaluator >> parse: aString [
 	| expression |
 	
 	expression := RBParser parseExpression: aString.
-	(expression isSequence and: [ environment classLoader isClassDefinition: aString ])
+	(expression isSequence and: [ self classLoader isClassDefinition: aString ])
 		ifTrue: [ expression := EPASTClassDefinition fromMessageNode: expression ].
 	(expression isMessage and: [ self isTraitDefinitionSelector: expression selector ])
 		ifTrue: [ expression := EPASTTraitDefinition fromMessageNode: expression ].
