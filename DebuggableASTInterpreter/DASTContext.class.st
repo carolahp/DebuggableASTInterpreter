@@ -298,6 +298,10 @@ DASTContext >> findNextUnwindContextUpTo: aContext [
 { #category : #'API-lookup' }
 DASTContext >> findVariable: aByteSymbol [
 	"Return the value of a variable. If this context redefines a variable defined by its parent context, this method will return the variable value for this context"
+
+	"global variables"
+	(self findGlobalVariable: aByteSymbol) 
+		ifNotNil: [ :assoc | ^ assoc value ].
 	
 	"local variables"
 	(self findLocalVariable: aByteSymbol)
@@ -309,10 +313,6 @@ DASTContext >> findVariable: aByteSymbol [
 	
 	"class variables"
 	(self findClassVariable: aByteSymbol)
-		ifNotNil: [ :assoc | ^ assoc value ].
-	
-	"global variables"
-	(self findGlobalVariable: aByteSymbol) 
 		ifNotNil: [ :assoc | ^ assoc value ].
 	
 	self error: 'Variable ', aByteSymbol , ' not defined!'
@@ -683,6 +683,11 @@ DASTContext >> stack [
 { #category : #'accessing - private' }
 DASTContext >> stack: anObject [
 	stack := anObject
+]
+
+{ #category : #'accessing-stack' }
+DASTContext >> stackTop [
+	^ self stack isEmpty ifTrue: [ nil ] ifFalse: [ self stack top ]
 ]
 
 { #category : #'accessing - private' }

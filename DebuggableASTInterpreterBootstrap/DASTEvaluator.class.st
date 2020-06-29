@@ -69,13 +69,12 @@ DASTEvaluator >> executePrimitiveMethod: aDASTMethod withReceiver: anEPMirror wi
 
 { #category : #'variables-class' }
 DASTEvaluator >> findClassVariable: aString inObject: anObject [ 
-	| mClass hlClass |
-	mClass := anObject isClassMirror
-		ifTrue: [ anObject asClassMirror ]
+	| theClass |
+	theClass := anObject isRemoteClass
+		ifTrue: [ anObject ]
 		ifFalse: [ anObject basicClass ].
-	hlClass := mClass asRemoteClassOnEnvironment: (EPRemoteEnvironment on: self environment bootstrapEnvironment).
 	
-	^ hlClass innerBindingOf: aString.
+	^ theClass innerBindingOf: aString.
 ]
 
 { #category : #'variables-class' }
@@ -98,7 +97,7 @@ DASTEvaluator >> findGlobalVariable: aString [
 	| binding aRGObject |
 	 
 	binding := self environment bindingOf: aString.
-	binding ifNil: [ ^ self error: 'Variable ', aString , ' not defined!' ].
+	binding ifNil: [ ^ nil ].
 	"Mark the class or global variable as accessed in the ring model"
 	aRGObject := self systemDefinition 
 		classNamed: aString 
