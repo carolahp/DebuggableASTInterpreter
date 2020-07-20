@@ -86,8 +86,12 @@ DASTEvaluator >> findClassVariable: aName inObjectAndItsParents: remoteObject [
 	
 	superclass := class.
 	[ superclass isNilObject ] whileFalse: [ 
+		| superclassDefinition |
 		(superclass innerBindingOf: aName) ifNotNil: [:assoc | ^ assoc].
-		superclass := superclass superclass.
+		superclassDefinition := superclass asRGClass superclass.
+		superclass := superclassDefinition 
+			ifNil: [ objectSpace nilObject ]
+			ifNotNil: [ codeProvider classNamed: superclassDefinition name ].
 		 ].
 	^ nil
 ]
