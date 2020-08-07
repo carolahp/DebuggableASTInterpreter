@@ -397,12 +397,19 @@ DASTInterpreter >> visitMessageNode: aRBMessageNode [
 			messageNode: aRBMessageNode
 			evaluator: self evaluator.] on: DASTDoesNotUnderstand do: [ 
 				"directly applying the message defined by 'selector' to the mirror that connectos to the receiver"
-				|result|
-				self halt.
-				self evaluator systemDefinition actionDoesNotUnderstand: aRBMessageNode receiver: receiver.
+				"|result|
 				result := receiver perform: aRBMessageNode selector.
 				self stackPush: result.
-				^ result
+				^ result"
+				"try loading the message from the system"
+				self evaluator systemDefinition actionDoesNotUnderstand: aRBMessageNode receiver: receiver.
+				"performing the lookup again"
+				newContext := 
+					DASTContext
+						newWithSender: self currentContext 
+						receiver: receiver 
+						messageNode: aRBMessageNode
+						evaluator: self evaluator.
 			 ].
 	
 	" Lookup"
