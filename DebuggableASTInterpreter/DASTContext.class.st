@@ -315,7 +315,9 @@ DASTContext >> findVariable: aByteSymbol [
 	(self findClassVariable: aByteSymbol)
 		ifNotNil: [ :assoc | ^ assoc value ].
 	
-	self error: 'Variable ', aByteSymbol , ' not defined!'
+	
+	(NotFound signalFor: aByteSymbol)
+	
 	"^ parent 
 			ifNil: [ self error: 'Variable ', aByteSymbol , ' not defined!'  ] 
 			ifNotNil: [ :pc | pc findVariable: aByteSymbol ]"

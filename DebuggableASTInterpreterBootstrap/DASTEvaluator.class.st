@@ -101,11 +101,19 @@ DASTEvaluator >> findGlobalVariable: aString [
 	| binding aRGObject |
 	 
 	binding := self environment bindingOf: aString.
-	binding ifNil: [ ^ nil ].
-	"Mark the class or global variable as accessed in the ring model"
+
+	binding ifNil: [ | classDefinition |
+		"try to load the class from the local system to the metamodel"
+		classDefinition:=self systemDefinition hookGlobalNotFound: aString.
+		"now we try finding the variable again"
+		binding := self environment bindingOf: aString
+		 ].
+	binding ifNil: [ ^nil ].
 	aRGObject := self systemDefinition 
-		classNamed: aString 
+		classNamed: binding name 
 		ifAbsent: [ self systemDefinition globalVariableNamed: aString ].
+	
+	"Mark the class or global variable as accessed in the ring model"	
 	aRGObject markAsAccessed.
 	^ binding
 ]
