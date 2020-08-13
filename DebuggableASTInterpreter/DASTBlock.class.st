@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'interval'
 	],
-	#category : 'DebuggableASTInterpreter-Closures'
+	#category : #'DebuggableASTInterpreter-Closures'
 }
 
 { #category : #lookup }
