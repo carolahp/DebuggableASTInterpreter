@@ -2,7 +2,8 @@ Class {
 	#name : #DASTBlock,
 	#superclass : #DASTClosure,
 	#instVars : [
-		'interval'
+		'interval',
+		'startpc'
 	],
 	#category : #'DebuggableASTInterpreter-Closures'
 }
