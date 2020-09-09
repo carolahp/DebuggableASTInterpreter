@@ -4,13 +4,13 @@ I am a context created to evaluate the body of a block
 Class {
 	#name : #DASTBlockContext,
 	#superclass : #DASTContext,
-	#category : 'DebuggableASTInterpreter-Contexts'
+	#category : #'DebuggableASTInterpreter-Contexts'
 }
 
 { #category : #'accessing - private' }
 DASTBlockContext >> allInstVars [ 
-	^ closure outerContext allInstVars ,
-	  sender allInstVars
+	^ (closure outerContext allInstVars ,
+	  sender allInstVars) select: [ :iv | iv isKindOf: Association ] "ugly, used to prevent adding instance variables of the block"
 ]
 
 { #category : #'accessing - private' }
