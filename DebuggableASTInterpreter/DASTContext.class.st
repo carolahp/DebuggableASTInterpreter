@@ -128,6 +128,11 @@ DASTContext >> canExecute [
 		and: [ (self parent isRoot and: self returnNodeReached) not ] ]
 ]
 
+{ #category : #casting }
+DASTContext >> cast [
+	receiver := receiver asRemoteObjectCasted 
+]
+
 { #category : #'gt-extension' }
 DASTContext >> codeHighlightRange [
 	| nodeHighlight |
