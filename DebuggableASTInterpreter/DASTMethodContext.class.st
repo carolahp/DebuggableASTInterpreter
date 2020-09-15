@@ -115,10 +115,10 @@ DASTMethodContext >> printOn: aStream [
 					aStream nextPut: $) ].
 			aStream nextPutAll: '>>'.
 			aStream nextPutAll: selector.
-			selector = #doesNotUnderstand:
+			"selector = #doesNotUnderstand:
 				ifTrue:
-					[ aStream space.
-					(self variablesDict values at: 1) selector printOn: aStream ]
+					[aStream space.
+					(self variablesDict values at:3) selector printOn: aStream ]"
 ]
 
 { #category : #modifying }

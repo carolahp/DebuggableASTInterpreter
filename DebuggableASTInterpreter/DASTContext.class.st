@@ -19,13 +19,19 @@ Class {
 		'tempVarIndex',
 		'tempVarsNamesIndexes',
 		'unhandledException',
-		'evaluator'
+		'evaluator',
+		'casted'
 	],
 	#classVars : [
 		'valueToBlockMessages'
 	],
 	#category : #'DebuggableASTInterpreter-Contexts'
 }
+
+{ #category : #'external target' }
+DASTContext class >> isRemoteClass [
+	^ true
+]
 
 { #category : #instantiation }
 DASTContext class >> newNoMethodContextWithProgram: aRBNode temps: aCollection evaluator: anEvaluator [
@@ -130,7 +136,33 @@ DASTContext >> canExecute [
 
 { #category : #casting }
 DASTContext >> cast [
-	receiver := receiver asRemoteObjectCasted 
+	"self casted 
+		ifTrue: [ 
+			"" there's no need to cast since this context was already casted in the past ""
+			^ self ]."
+
+	receiver := receiver asRemoteObjectCasted.
+	receiver isNotNil
+		ifTrue: [ receiver allInstVars
+				do: [ :instVar | 
+					receiver
+						instanceVariableNamed: instVar key
+						put: instVar value asRemoteObjectCasted ] ].
+	variablesDict
+		associationsDo:
+			[ :assoc | variablesDict at: assoc key put: assoc value asRemoteObjectCasted ].
+	self casted: true
+	"receiver allInstVars do: [  ]"
+]
+
+{ #category : #accessing }
+DASTContext >> casted [
+	^ casted ifNil: [ casted:=false ]
+]
+
+{ #category : #accessing }
+DASTContext >> casted: aBoolean [
+	casted := aBoolean
 ]
 
 { #category : #'gt-extension' }
@@ -373,9 +405,9 @@ DASTContext >> gtInspectorVarsIn: composite [
 	^ (composite fastTable)
 		title: 'Variables';
 		display: [ 
-			(self allInternVars collect: [ :each | { 'ctx'      . each key . each value } ]) , 
-	  		(self allTemps      collect: [ :each | { 'temporal' . each key . each value } ]) , 
-	  		(self allInstVars   collect: [ :each | { 'instance' . each key . each value } ]) ];
+			(self allInternVars collect: [ :each | { '(ctx)'      . each key = 'receiver' ifTrue: [ 'self' ] ifFalse: [ 'receiver' ] . each value } ]) , 
+	  		(self allTemps      collect: [ :each | { '(temp)' . each key . each value } ]) , 
+	  		(self allInstVars   collect: [ :each | { '(inst)' . each key . each value } ]) ];
 		"children: [ :each | 
 			(each value isDictionary) 
 				ifTrue: [ each value associations ] 
@@ -402,9 +434,10 @@ DASTContext >> gtInspectorVarsIn: composite [
 		send: [ :selection | 
 			selection isNil 
 			ifTrue:[nil]
-			ifFalse:[ (selection size = 1) 
+			ifFalse: [ selection at: 3 ]
+			"ifFalse:[ (selection size = 1) 
 				ifTrue: [ (selection anyOne at: 3)  ] 
-				ifFalse: [ self halt. selection collect: [ :each | each at: 3 ] ] ]]
+				ifFalse: [ selection ] ]"]
 ]
 
 { #category : #accessing }
