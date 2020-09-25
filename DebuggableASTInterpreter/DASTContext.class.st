@@ -142,7 +142,7 @@ DASTContext >> cast [
 			^ self ]."
 
 	receiver := receiver asRemoteObjectCasted.
-	receiver isNotNil
+	(receiver isNotNil and: [receiver target isExternalHandle not])
 		ifTrue: [ receiver allInstVars
 				do: [ :instVar | 
 					receiver

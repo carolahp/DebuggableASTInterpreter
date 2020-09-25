@@ -21,6 +21,17 @@ DASTBlockContext >> allTemps [
 ]
 
 { #category : #initialization }
+DASTBlockContext >> cast [
+	super cast.
+
+"	receiver := receiver asRemoteObjectCasted.
+	variablesDict
+		associationsDo:
+			[ :assoc | variablesDict at: assoc key put: assoc value asRemoteObjectCasted ].
+	self casted: true"
+]
+
+{ #category : #initialization }
 DASTBlockContext >> contextTag [
 	^ closure outerContext
 ]
