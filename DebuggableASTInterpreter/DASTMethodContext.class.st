@@ -7,6 +7,11 @@ Class {
 	#category : #'DebuggableASTInterpreter-Contexts'
 }
 
+{ #category : #marking }
+DASTMethodContext class >> lookupSelectorAndMarkTraversedClasses: selector [ 
+	^ self lookupSelector: selector
+]
+
 { #category : #'accessing - private' }
 DASTMethodContext >> allInstVars [ 
 	^ (self evaluator nilObject = receiver) 
@@ -124,6 +129,11 @@ DASTMethodContext >> printOn: aStream [
 				ifTrue:
 					[aStream space.
 					(self variablesDict values at:3) selector printOn: aStream ]"
+]
+
+{ #category : #'external object handle' }
+DASTMethodContext >> remoteClassName [
+	^ evaluator systemDefinition classContext name
 ]
 
 { #category : #modifying }

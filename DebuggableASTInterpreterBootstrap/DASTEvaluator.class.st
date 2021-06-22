@@ -168,15 +168,17 @@ DASTEvaluator >> lookupSelector: aByteString startInClass: aClass [
 ]
 
 { #category : #mark }
-DASTEvaluator >> markMethodAsAccessed: method [ 
+DASTEvaluator >> markMethodAsAccessed: method [
 	" Mark the method as accessed in the ring model for deciding wether or not install it later in the kernel"
-	| methodClass |
-	methodClass := 
-		(method methodClass == BlockClosure or: method methodClass == Object)
-			ifTrue: [ self systemDefinition classBlockClosure ]
-			ifFalse: [ method methodClass ].
-	methodClass markMethodAsAccessed: method.
-	
+
+	| class result |
+	class := method methodClass.
+	result := class.
+	(class == BlockClosure or: class == Object)
+		ifTrue: [ result := self systemDefinition classBlockClosure ].
+	(class == DASTContext or: class == DASTMethodContext)
+		ifTrue: [ result := self systemDefinition classContext ].
+	result markMethodAsAccessed: method
 ]
 
 { #category : #encoding }
