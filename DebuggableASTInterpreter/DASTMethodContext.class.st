@@ -24,6 +24,11 @@ DASTMethodContext >> allTemps [
 	^ self variablesDict associations
 ]
 
+{ #category : #'remote casting' }
+DASTMethodContext >> asRemoteObjectInObjectSpace: anEP2ObjectSpace [ 
+	^ anEP2ObjectSpace backend contextFrom: self
+]
+
 { #category : #accessing }
 DASTMethodContext >> basicClass [
 	^ self class.
@@ -56,6 +61,7 @@ DASTMethodContext >> initializeContext [
 	self	parent: sender.
 	aSelector := messageNode selector.
 	aClass := self getClassForLookup.
+	self haltIf:[aClass name = 'PCContext'].
 	compiledMethod := self evaluator lookupSelector: aSelector startInClass: aClass.
 	self evaluator markMethodAsAccessed: compiledMethod.
 	ast := DASTMethod new initializeWith: compiledMethod ast evaluator: self evaluator. 

@@ -486,9 +486,9 @@ DASTInterpreter >> visitTemporaryNode: aRBTemporaryNode [
 ]
 
 { #category : #visiting }
-DASTInterpreter >> visitThisContextNode: aRBThisContextNode [ 
+DASTInterpreter >> visitThisContextNode: thisContextNode [ 
 	| contextMirror |
-	contextMirror := 	self evaluator contextFrom: currentContext.
+	contextMirror := self evaluator contextFrom: currentContext.
 	self stackPush: contextMirror
 ]
 

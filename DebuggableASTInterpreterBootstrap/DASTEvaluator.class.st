@@ -51,7 +51,7 @@ DASTEvaluator >> classLoader [
 
 { #category : #encoding }
 DASTEvaluator >> contextFrom: aDASTContext [
-	^ (self objectSpace backend mirrorOnExternalHandle: aDASTContext) asRemoteContext
+	^ self objectSpace backend contextFrom: aDASTContext
 ]
 
 { #category : #interpreting }
@@ -174,10 +174,12 @@ DASTEvaluator >> markMethodAsAccessed: method [
 	| class result |
 	class := method methodClass.
 	result := class.
-	(class == BlockClosure or: class == Object)
+	(class == BlockClosure )
 		ifTrue: [ result := self systemDefinition classBlockClosure ].
-	(class == DASTContext or: class == DASTMethodContext)
+	(class == DASTContext or: [class == DASTMethodContext])
 		ifTrue: [ result := self systemDefinition classContext ].
+	(class == Object)
+		ifTrue: [ result := self systemDefinition classProtoObject ].
 	result markMethodAsAccessed: method
 ]
 
