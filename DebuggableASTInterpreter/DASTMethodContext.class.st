@@ -100,6 +100,11 @@ DASTMethodContext >> isUnwindContext [
 ]
 
 { #category : #initialization }
+DASTMethodContext >> method [ 
+	^closure
+]
+
+{ #category : #initialization }
 DASTMethodContext >> printOn: aStream [
 	| selector class mclass  |
 			closure == nil

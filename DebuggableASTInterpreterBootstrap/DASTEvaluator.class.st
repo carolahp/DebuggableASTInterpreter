@@ -49,6 +49,11 @@ DASTEvaluator >> classLoader [
 	^ self codeProvider classLoader
 ]
 
+{ #category : #encoding }
+DASTEvaluator >> contextFrom: aDASTContext [
+	^ (self objectSpace backend mirrorOnExternalHandle: aDASTContext) asRemoteContext
+]
+
 { #category : #interpreting }
 DASTEvaluator >> evaluateAST: ast [
 	
