@@ -231,6 +231,8 @@ DASTEvaluator >> pvtLookupSelector: aByteString startInClass: aClass [
 	we must force the lookup to go in the class Block in the ring model"
 	class == DASTBlock
 		ifTrue: [ class := self systemDefinition classBlockClosure ].
+	class == DASTMethodContext
+		ifTrue: [ class := self systemDefinition classContext ].
 	method := class lookupSelectorAndMarkTraversedClasses: aByteString.
 	"If the method was not found it will be nil"
 	^ method
