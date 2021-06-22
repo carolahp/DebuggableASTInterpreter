@@ -131,11 +131,6 @@ DASTMethodContext >> printOn: aStream [
 					(self variablesDict values at:3) selector printOn: aStream ]"
 ]
 
-{ #category : #'external object handle' }
-DASTMethodContext >> remoteClassName [
-	^ evaluator systemDefinition classContext name
-]
-
 { #category : #modifying }
 DASTMethodContext >> removePrimitiveFromMethod [
 	
