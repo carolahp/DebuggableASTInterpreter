@@ -20,7 +20,8 @@ Class {
 		'tempVarsNamesIndexes',
 		'unhandledException',
 		'evaluator',
-		'casted'
+		'casted',
+		'methodModel'
 	],
 	#classVars : [
 		'valueToBlockMessages'

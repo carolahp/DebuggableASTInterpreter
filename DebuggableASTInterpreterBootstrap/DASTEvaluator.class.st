@@ -178,7 +178,7 @@ DASTEvaluator >> markMethodAsAccessed: method [
 		ifTrue: [ result := self systemDefinition classBlockClosure ].
 	(class == DASTContext or: [class == DASTMethodContext])
 		ifTrue: [ result := self systemDefinition classContext ].
-	(class == Object)
+	(class == Object or: class == ProtoObject)
 		ifTrue: [ result := self systemDefinition classProtoObject ].
 	result markMethodAsAccessed: method
 ]

@@ -54,24 +54,29 @@ DASTMethodContext >> icon [
 
 { #category : #initialization }
 DASTMethodContext >> initializeContext [
-
-	| theMethod theClassMethodDic aClass aSelector result 
-	  compiledMethod ast visitor flatNodes | 
+	| class selector ast visitor flatNodes |
+	self parent: sender.
+	selector := messageNode selector.
+	class := self getClassForLookup.
 	
-	self	parent: sender.
-	aSelector := messageNode selector.
-	aClass := self getClassForLookup.
-	self haltIf:[aClass name = 'PCContext'].
-	compiledMethod := self evaluator lookupSelector: aSelector startInClass: aClass.
-	self evaluator markMethodAsAccessed: compiledMethod.
-	ast := DASTMethod new initializeWith: compiledMethod ast evaluator: self evaluator. 
+	methodModel := self evaluator
+		lookupSelector: selector
+		startInClass: class.
+		
+	self evaluator markMethodAsAccessed: methodModel.
+	
+	ast := DASTMethod new
+		initializeWith: methodModel ast
+		evaluator: self evaluator.
+	
 	visitor := DASTPostOrderTreeVisitor new.
 	ast body acceptVisitor: visitor.
 	flatNodes := visitor stack.
 	
-	self 	methodOrBlock: ast;
-			nodes: flatNodes
-	
+	self
+		methodOrBlock: ast;
+		nodes: flatNodes
+
 	"the next comment contains the optimization for saving the methods already looked up. 
 	It is commented because it produces a loop forever when we interpret the interpreter interpreting a primitive, such as 1+2"
 	"
@@ -91,7 +96,6 @@ DASTMethodContext >> initializeContext [
 	self 	methodOrBlock: theMethod;
 			nodes: nodes.
 	"
-	
 ]
 
 { #category : #initialization }
@@ -113,6 +117,11 @@ DASTMethodContext >> isUnwindContext [
 { #category : #initialization }
 DASTMethodContext >> method [ 
 	^closure
+]
+
+{ #category : #accessing }
+DASTMethodContext >> methodModel [
+	^ methodModel
 ]
 
 { #category : #initialization }
