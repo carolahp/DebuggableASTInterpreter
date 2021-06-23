@@ -197,15 +197,20 @@ DASTInterpreter >> receiver [
 
 { #category : #evaluation }
 DASTInterpreter >> restart: aDASTContext [
-	| newContext temps nargs |
+	| newContext temps nargs methodContext |
+	
+	methodContext := aDASTContext.
+	[ methodContext isBlockContext ]
+		whileTrue: [ methodContext := methodContext parent ].
+	
 	newContext := 
 		DASTContext
-			newWithSender: aDASTContext sender 
-			receiver: aDASTContext receiver 
-			messageNode: aDASTContext messageNode
-			evaluator: aDASTContext evaluator.
-	nargs := aDASTContext messageNode arguments.
-	temps := aDASTContext allTemps reverse.
+			newWithSender: methodContext sender 
+			receiver: methodContext receiver 
+			messageNode: methodContext messageNode
+			evaluator: methodContext evaluator.
+	nargs := methodContext messageNode arguments.
+	temps := methodContext allTemps reverse.
 	nargs doWithIndex: [ :arg :i | | temp |
 		temp := temps at: i.
 		newContext at: temp name put: temp value
@@ -281,6 +286,18 @@ DASTInterpreter >> stepInto [
 ]
 
 { #category : #evaluation }
+DASTInterpreter >> stepIntoInContext: targetContext [
+	targetContext = currentContext
+		ifTrue: [ self stepInto.
+			^ currentContext ].
+	self stepInto.
+	[ currentContext ~= targetContext
+		and: currentContext senders size > targetContext senders size ]
+		whileTrue: [ self stepInto ].
+	^ self currentContext
+]
+
+{ #category : #evaluation }
 DASTInterpreter >> stepOver [
 	| initialContext |
 	initialContext := currentContext.
@@ -293,14 +310,12 @@ DASTInterpreter >> stepOver [
 ]
 
 { #category : #evaluation }
-DASTInterpreter >> stepOverInContext: aContext [
-	| targetContext |
-	targetContext := aContext.
-	self stepInto.
+DASTInterpreter >> stepOverInContext: targetContext [
+	self stepOver.
 	[ currentContext ~= targetContext
 		and: currentContext senders size > targetContext senders size 
 		"and: [ currentContext ~= initialContext sender ]" ]
-		whileTrue: [ self stepInto ].
+		whileTrue: [ self stepOver ].
 	^ self currentContext
 ]
 
@@ -309,10 +324,18 @@ DASTInterpreter >> stepThrough [
 	| initialContext |
 	initialContext := currentContext.
 	self stepInto.
-	[ (currentContext = initialContext or: currentContext senders size <= initialContext senders size)
-		or: ((currentContext parent = initialContext) and: currentContext isBlockContext) ]
-	whileFalse: [ self stepInto ]. 
-	
+	[ currentContext = initialContext
+		or: [ currentContext method = initialContext method ] ]
+		whileFalse: [ self stepInto ].
+	^ self currentContext
+]
+
+{ #category : #evaluation }
+DASTInterpreter >> stepThroughInContext: targetContext [
+	self stepThrough.
+	[ currentContext = targetContext
+		or: [ currentContext method = targetContext method ] ]
+		whileFalse: [ self stepInto ].
 	^ self currentContext
 ]
 
