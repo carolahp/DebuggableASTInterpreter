@@ -293,6 +293,18 @@ DASTInterpreter >> stepOver [
 ]
 
 { #category : #evaluation }
+DASTInterpreter >> stepOverInContext: aContext [
+	| targetContext |
+	targetContext := aContext.
+	self stepInto.
+	[ currentContext ~= targetContext
+		and: currentContext senders size > targetContext senders size 
+		"and: [ currentContext ~= initialContext sender ]" ]
+		whileTrue: [ self stepInto ].
+	^ self currentContext
+]
+
+{ #category : #evaluation }
 DASTInterpreter >> stepThrough [
 	| initialContext |
 	initialContext := currentContext.
@@ -414,7 +426,6 @@ DASTInterpreter >> visitMessageNode: aRBMessageNode [
 	
 	" Lookup"
 	method := newContext methodOrBlock.
-	
 	" Apply - invoke method "
 	(aRBMessageNode isCascaded and: [aRBMessageNode parent messages last ~= aRBMessageNode]) ifTrue: [ self stackPush: receiver ]. 
 	(method isPrimitive and: [method isMessageValue not and: [method isOnDo not]] )  
@@ -430,6 +441,9 @@ DASTInterpreter >> visitMessageNode: aRBMessageNode [
 	" Set new context "
 	currentContext := newContext.
 	currentContext setTemporalVariablesNamed: method argumentNames values: arguments.
+	aRBMessageNode selector = #error: ifTrue: [ 
+		currentContext unhandledException: true.
+		(PBHybridDebugger withInterpreter: self) openWithSpec ].
 	
 ]
 
