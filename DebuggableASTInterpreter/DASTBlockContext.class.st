@@ -7,6 +7,11 @@ Class {
 	#category : #'DebuggableASTInterpreter-Contexts'
 }
 
+{ #category : #converting }
+DASTBlockContext class >> ep2RemoteClass [
+	^ EP2ExternalContext 
+]
+
 { #category : #'accessing - private' }
 DASTBlockContext >> allInstVars [ 
 	^ (closure outerContext allInstVars ,
@@ -16,8 +21,12 @@ DASTBlockContext >> allInstVars [
 { #category : #'accessing - private' }
 DASTBlockContext >> allTemps [
 	^ self variablesDict associations ,
-	  closure outerContext allTemps , 
-	  sender allTemps 
+	  closure outerContext allTemps 
+]
+
+{ #category : #converting }
+DASTBlockContext >> asRemoteObjectInObjectSpace: anEP2ObjectSpace [  
+	^ anEP2ObjectSpace backend contextFrom: self
 ]
 
 { #category : #initialization }

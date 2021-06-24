@@ -736,6 +736,11 @@ DASTContext >> tempAt: anIndex [
 	^ self variablesDict at: (self variablesDict keys at: anIndex)
 ]
 
+{ #category : #'code editor' }
+DASTContext >> tempNames [
+	^ self allTemps collect: #key
+]
+
 { #category : #'private-exceptions' }
 DASTContext >> terminate [
 	"Make myself unresumable."
