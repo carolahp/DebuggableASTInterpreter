@@ -336,29 +336,30 @@ DASTContext >> findNextUnwindContextUpTo: aContext [
 { #category : #'API-lookup' }
 DASTContext >> findVariable: aByteSymbol [
 	"Return the value of a variable. If this context redefines a variable defined by its parent context, this method will return the variable value for this context"
-
-	"global variables"
-	(self findGlobalVariable: aByteSymbol) 
-		ifNotNil: [ :assoc | ^ assoc value ].
-	
 	"local variables"
 	(self findLocalVariable: aByteSymbol)
 		ifNotNil: [ :assoc | ^ assoc value ].
 	
+	(receiver bindingOf: aByteSymbol) 
+		ifNotNil: [:bind | ^ bind value].
+	
+	(self evaluator codeProvider languageDefinition bindingOf: aByteSymbol)
+		ifNotNil: [:bind | ^ bind value].
+	"global variables"
+	"(self findGlobalVariable: aByteSymbol) 
+		ifNotNil: [ :assoc | ^ assoc value ]."
+	
+	
+	
 	"instance variables"
-	(self findInstanceVariable: aByteSymbol) 
-		ifNotNil: [ :assoc |  ^ assoc value ].
+	"(self findInstanceVariable: aByteSymbol) 
+		ifNotNil: [ :assoc |  ^ assoc value ]."
 	
 	"class variables"
-	(self findClassVariable: aByteSymbol)
-		ifNotNil: [ :assoc | ^ assoc value ].
-	
-	
+	"(self findClassVariable: aByteSymbol)
+		ifNotNil: [ :assoc | ^ assoc value ]."
 	(NotFound signalFor: aByteSymbol)
 	
-	"^ parent 
-			ifNil: [ self error: 'Variable ', aByteSymbol , ' not defined!'  ] 
-			ifNotNil: [ :pc | pc findVariable: aByteSymbol ]"
 ]
 
 { #category : #'accessing - private' }
